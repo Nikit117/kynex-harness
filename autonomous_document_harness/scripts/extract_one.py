@@ -1,7 +1,7 @@
-"""Extract one document with the Nikit Harness and emit schema-shaped JSON.
+"""Extract one document with the KYNEX and emit schema-shaped JSON.
 
 This is the single-document entry point used by the ExtractBench provider
-(``autonomous_document_harness/eval/extractbench/nikit_harness_provider.py``), which
+(``autonomous_document_harness/eval/extractbench/kynex_provider.py``), which
 runs it as a subprocess the same way the leaderboard's coding-agent pipelines
 run a local CLI.
 

@@ -1,6 +1,7 @@
-# Nikit Harness (TUI v3)
+# KYNEX (TUI v3)
 
-A local, tool-using document-extraction agent. It stages a document, lets the
+**KYNEX** = *Knowledge Yield Nexus for EXtraction* -- a local, tool-using
+document-extraction agent. It stages a document, lets the
 model call tools (`read_page`, `extract_table`, Document Intelligence layout
 analysis, vision) and returns schema-shaped JSON.
 
@@ -120,9 +121,9 @@ The provider runs `extract_one.py` as a subprocess, like the other
 coding-agent pipelines, so the benchmark environment needs no extra packages.
 
 ```bash
-export NIKIT_HARNESS_ROOT=/path/to/nikit-harness
-export NIKIT_HARNESS_PYTHON=/path/to/nikit-harness/.venv/bin/python
-uv run extract-bench run nikit_harness_gpt_5_4
+export KYNEX_HARNESS_ROOT=/path/to/kynex-harness
+export KYNEX_HARNESS_PYTHON=/path/to/kynex-harness/.venv/bin/python
+uv run extract-bench run kynex_gpt_5_4
 ```
 
 ## Reproducibility notes

@@ -1,4 +1,4 @@
-"""Provider for the Nikit Harness (gpt-5.4) on ExtractBench.
+"""Provider for the KYNEX (gpt-5.4) on ExtractBench.
 
 The harness is the local TUI agent: it stages the document, lets the model call
 tools (``read_page``, ``extract_table``, Document-Intelligence layout analysis,
@@ -19,13 +19,13 @@ Like the leaderboard's coding-agent pipelines (``claude_code_extract_*``,
 ``codex_code_extract_*``) this provider runs the extraction as a **local
 subprocess** -- ``scripts/extract_one.py`` -- so the official environment needs
 no extra Python packages. The interpreter is taken from
-``NIKIT_HARNESS_PYTHON`` (default: the repository's own ``.venv``), and the
-repository root from ``NIKIT_HARNESS_ROOT``.
+``KYNEX_HARNESS_PYTHON`` (default: the repository's own ``.venv``), and the
+repository root from ``KYNEX_HARNESS_ROOT``.
 
 To register it with the official CLI, add to
 ``extract_bench/inference/providers/extract/__init__.py``::
 
-    from .nikit_harness import NikitHarnessExtractProvider  # noqa: F401
+    from .nikit_harness import KynexExtractProvider  # noqa: F401
 
 and to ``extract_bench/inference/pipelines/extract.py``::
 
@@ -63,7 +63,7 @@ from extract_bench.schemas.pipeline_io import (
 )
 from extract_bench.schemas.product import ProductType
 
-DEFAULT_REPO_ROOT = Path(os.getenv("NIKIT_HARNESS_ROOT") or r"C:\path\to\nikit-harness")
+DEFAULT_REPO_ROOT = Path(os.getenv("KYNEX_HARNESS_ROOT") or r"C:\path\to\kynex-harness")
 
 # The harness rules that were enabled for the measured 370-document benchmark
 # run (official ExtractBench scorer).  They are passed to the subprocess
@@ -83,7 +83,7 @@ HARNESS_ENV: dict[str, str] = {
 
 def _harness_python() -> str:
     """The interpreter that has the harness' dependencies."""
-    explicit = os.getenv("NIKIT_HARNESS_PYTHON", "").strip()
+    explicit = os.getenv("KYNEX_HARNESS_PYTHON", "").strip()
     if explicit:
         return explicit
     candidate = DEFAULT_REPO_ROOT / ".venv" / "Scripts" / "python.exe"
@@ -96,11 +96,11 @@ async def _extract_async(source: Path, schema: dict[str, Any], timeout: float) -
     """Run the harness extraction as a subprocess and return the JSON."""
 
     def _run() -> dict[str, Any]:
-        repo = Path(os.getenv("NIKIT_HARNESS_ROOT") or DEFAULT_REPO_ROOT)
+        repo = Path(os.getenv("KYNEX_HARNESS_ROOT") or DEFAULT_REPO_ROOT)
         script = repo / "autonomous_document_harness" / "scripts" / "extract_one.py"
         if not script.exists():
             raise ProviderPermanentError(
-                f"harness entry point not found: {script} (set NIKIT_HARNESS_ROOT)"
+                f"harness entry point not found: {script} (set KYNEX_HARNESS_ROOT)"
             )
         with tempfile.TemporaryDirectory() as td:
             schema_file = Path(td) / "schema.json"
@@ -140,8 +140,8 @@ async def _extract_async(source: Path, schema: dict[str, Any], timeout: float) -
     return await asyncio.get_running_loop().run_in_executor(None, _run)
 
 
-class NikitHarnessExtractProvider(Provider):
-    """Provider for the Nikit Harness on ExtractBench.
+class KynexExtractProvider(Provider):
+    """Provider for the KYNEX on ExtractBench.
 
     Configuration options:
         - ``timeout`` (int, default 3600): per-document timeout in seconds. A
@@ -156,7 +156,7 @@ class NikitHarnessExtractProvider(Provider):
     def run_inference(self, pipeline: Any, request: InferenceRequest) -> RawInferenceResult:
         if request.product_type != ProductType.EXTRACT:
             raise ProviderPermanentError(
-                "NikitHarnessExtractProvider only supports EXTRACT product type, got "
+                "KynexExtractProvider only supports EXTRACT product type, got "
                 f"{request.product_type}"
             )
         if not request.schema_override:
