@@ -163,6 +163,19 @@ Every rule has a kill switch (`ADH_BULK_ARRAYS`, `ADH_PRUNE_NON_RECORDS`,
 
 ---
 
+## Showcase
+
+| | |
+|---|---|
+| **ExtractBench leaderboard** | **92.65** unified value F1, rank **12 of 50** — [pull request #84](https://github.com/run-llama/ExtractBench/pull/84) |
+| **The D3 slice** | 0.8950 and 0.9104 in two independent runs, zero documents below 0.50 |
+
+The leaderboard entry is a local subprocess provider, so the official
+environment needs no extra packages: point it at a checkout and it runs the
+published code.
+
+---
+
 ## Documentation
 
 | | |
