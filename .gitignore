@@ -1,0 +1,15 @@
+﻿.venv/
+__pycache__/
+*.py[cod]
+.env
+.env*
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.ruff_cache/
+# never commit credentials or run artifacts
+*.log
+outputs/
+output/
+sessions/
