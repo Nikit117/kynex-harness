@@ -1,7 +1,7 @@
 # Minimal runtime deps (stdlib-first; no first-party reuse).
 # Install: .venv\Scripts\python.exe -m pip install -r autonomous_document_harness/requirements.txt
 pydantic>=2.10
-pymupdf>=1.24        # the itz module: PDF text and rendering
+pymupdf>=1.24        # the fitz module: PDF text and rendering
 pdfplumber>=0.11
 pypdfium2>=4.0
 openpyxl>=3.1.5
