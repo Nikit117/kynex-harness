@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- Python 3.10 or newer
+- Python 3.11 or newer
 - an Azure OpenAI deployment of **gpt-5.4**
 - optionally an Azure Document Intelligence resource (for the table rows and
   the OCR fallback)

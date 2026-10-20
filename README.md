@@ -12,7 +12,7 @@
 <p align="center">
   <a href="https://github.com/Nikit117/kynex-harness/actions/workflows/ci.yml"><img src="https://github.com/Nikit117/kynex-harness/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-3b82f6.svg" alt="License"></a>
-  <img src="https://img.shields.io/badge/python-3.10%2B-3b82f6.svg" alt="Python">
+  <img src="https://img.shields.io/badge/python-3.11%2B-3b82f6.svg" alt="Python">
   <img src="https://img.shields.io/badge/ExtractBench-92.65%20F1%20%7C%20rank%2012%2F50-38bdf8.svg" alt="ExtractBench">
   <img src="https://img.shields.io/badge/docs-docs%2F-3b82f6.svg" alt="Docs">
 </p>
