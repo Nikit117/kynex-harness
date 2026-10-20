@@ -53,7 +53,6 @@ from typing import Any
 
 from extract_bench.inference.providers.base import (
     Provider,
-    ProviderConfigError,
     ProviderPermanentError,
 )
 from extract_bench.schemas.extract_output import ExtractOutput
@@ -64,9 +63,7 @@ from extract_bench.schemas.pipeline_io import (
 )
 from extract_bench.schemas.product import ProductType
 
-DEFAULT_REPO_ROOT = Path(
-    os.getenv("NIKIT_HARNESS_ROOT") or r"C:\path\to\nikit-harness"
-)
+DEFAULT_REPO_ROOT = Path(os.getenv("NIKIT_HARNESS_ROOT") or r"C:\path\to\nikit-harness")
 
 # The harness rules that were enabled for the measured 370-document benchmark
 # run (official ExtractBench scorer).  They are passed to the subprocess
@@ -95,9 +92,7 @@ def _harness_python() -> str:
     return sys.executable
 
 
-async def _extract_async(
-    source: Path, schema: dict[str, Any], timeout: float
-) -> dict[str, Any]:
+async def _extract_async(source: Path, schema: dict[str, Any], timeout: float) -> dict[str, Any]:
     """Run the harness extraction as a subprocess and return the JSON."""
 
     def _run() -> dict[str, Any]:
@@ -158,18 +153,14 @@ class NikitHarnessExtractProvider(Provider):
         super().__init__(provider_name, base_config)
         self._timeout = int(self.base_config.get("timeout", 3600))
 
-    def run_inference(
-        self, pipeline: Any, request: InferenceRequest
-    ) -> RawInferenceResult:
+    def run_inference(self, pipeline: Any, request: InferenceRequest) -> RawInferenceResult:
         if request.product_type != ProductType.EXTRACT:
             raise ProviderPermanentError(
                 "NikitHarnessExtractProvider only supports EXTRACT product type, got "
                 f"{request.product_type}"
             )
         if not request.schema_override:
-            raise ProviderPermanentError(
-                "schema_override is required for EXTRACT product type."
-            )
+            raise ProviderPermanentError("schema_override is required for EXTRACT product type.")
         source = Path(request.source_file_path)
         if not source.exists():
             raise ProviderPermanentError(f"File not found: {source}")
