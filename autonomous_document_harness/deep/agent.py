@@ -68,7 +68,7 @@ budgets are exhausted.
 When extract_table returns rows, each row is a list of cell values. To submit \
 an answer from a table row:
 - Identify which columns are the entity (key) and which is the value.
-- subject = the entity columns joined by " / " (e.g. "BOP / DCS / AI")
+- subject = the entity columns joined by " / " (e.g. "UNIT / SUBSYSTEM / AI")
 - attribute = the contract's target_attribute (e.g. "Count")
 - value = the cell in the value column (e.g. "396")
 - Aim for complete record keys: the subject SHOULD include a value for
@@ -81,7 +81,7 @@ an answer from a table row:
   value with a partial key still beats a missed row.
 - snippet = **MUST combine the entity description AND the data row**. Format: \
 "System: <system> / Area: <area> / IO Type: <type> | <row cells>". \
-Example: "System: DCS / Area: BOP / IO Type: DO | BOP | 396 | 37 | 930 | 227 | 21"
+Example: "System: SYS-A / Area: BOP / Point Type: DO | BOP | 396 | 37 | 930 | 227 | 21"
 - The admission gate requires BOTH the entity words (System, Area, IO Type) \
 AND the numeric value in the snippet. A snippet with only labels or only \
 numbers will be rejected.
@@ -112,24 +112,24 @@ whenever you hold multiple answers.
   scanned candidate. Otherwise keep investigating.
 
 ## Output format for submit_candidate_answer
-- subject: the record identity (e.g. "System: DCS / Analog Input" or the \
+- subject: the record identity (e.g. "System: SYS-A / Analog Input" or the \
 entity the fact is about). For NARRATIVE and BOOLEAN contracts, append the \
-specific field or requirement name (e.g. "System: DCS / Accuracy of AI cards"), \
+specific field or requirement name (e.g. "System: SYS-A / Accuracy of AI cards"), \
 so each answer is precisely attributable to one requested item.
 - attribute: the requested field/column name
 - value: the SHORTEST EXACT SOURCE QUOTE stating the answer (a few words or
   one number copied verbatim — never a paraphrase). Verbatim quotes are the
-  gold standard of evidence: "AC 800M", "Yes", "rear access via hinged doors".
+  gold standard of evidence: "MODEL 300", "Yes", "rear access via hinged doors".
   Put surrounding context in the snippet, not the value.
 - snippet: verbatim source text supporting the value
 - method: native_text | native_table | azure_di | gpt54_vision | spreadsheet
 
 ## Entity coverage (no system left behind)
 Early in the investigation, enumerate the DISTINCT entity values in the corpus
-(systems, areas, units, packages, cabinet types — from headings, tables and
+(systems, areas, units, packages, equipment types — from headings, tables and
 search hits). Check off every one against every applicable contract. Never
-investigate only the first system found (e.g. only DCS when BMS/BPS, ESD or
-package systems exist). A contract is not covered while a named entity has
+investigate only the first system found (e.g. only the first one when other
+systems or packages exist). A contract is not covered while a named entity has
 no answers.
 """
 
@@ -232,7 +232,6 @@ class DeepAgentInvestigator:
         """
         try:
             from ..tools import tables as tables_mod
-            from ..workspace.world_model import WorldModel
 
             world = self.computer.world
             lines = []

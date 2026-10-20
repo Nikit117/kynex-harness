@@ -7,8 +7,8 @@ signal establishes precedence, authority stays uncertain — never a silent pick
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from dataclasses import dataclass
+from typing import Any, Dict, List
 
 DATE_RE = re.compile(r"\b((?:19|20)\d{2})[-/.](\d{1,2})[-/.](\d{1,2})\b")
 REV_RE = re.compile(r"\b[Rr]ev(?:ision)?\.?\s*([A-Z]|\d+)\b")

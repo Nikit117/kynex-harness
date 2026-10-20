@@ -25,7 +25,6 @@ from . import text as text_mod
 from . import vision as vision_mod
 from . import vision_llm as vision_llm_mod
 from .registry import (
-    Observation,
     ToolError,
     ToolRegistry,
     ToolSpec,

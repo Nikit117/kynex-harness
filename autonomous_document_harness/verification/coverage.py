@@ -11,7 +11,7 @@ from typing import Any, Dict, List
 
 from ..core.schemas import GateResult, RecoveryTask, make_id
 from ..models.heuristic import need_addressed, need_search_queries
-from .base import Gate, VerificationContext
+from .base import VerificationContext
 
 READABLE = frozenset({"selectable", "text", "spreadsheet", "hybrid"})
 UNSCANNED = frozenset({"scanned", "image"})

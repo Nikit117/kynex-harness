@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import re
 
 from ..core.schemas import ExtractionMethod, SourceType
-from ..tables.logical import fragments_from_grid, reconstruct, resolve_header_paths
+from ..tables.logical import fragments_from_grid, reconstruct
 from ..workspace.world_model import WorldModel
 from .registry import ToolError, provenance
 from .text import _require_doc

@@ -1,0 +1,27 @@
+name: Feature request
+description: Suggest a capability or an extraction rule.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What is hard to do with the harness today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: The proposal
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: |
+        If the proposal is an extraction rule, say which documents it would
+        change and how you measured that. A rule that cannot be measured on a
+        corpus does not ship.
+    validations:
+      required: false

@@ -1,146 +1,245 @@
-# KYNEX (TUI v3)
+<p align="center">
+  <img src="docs/images/kynex-logo.svg" alt="KYNEX" width="96" height="96">
+</p>
 
-**KYNEX** = *Knowledge Yield Nexus for EXtraction* -- a local, tool-using
-document-extraction agent. It stages a document, lets the
-model call tools (`read_page`, `extract_table`, Document Intelligence layout
-analysis, vision) and returns schema-shaped JSON.
+<h1 align="center">KYNEX</h1>
 
-This is the code that was measured on the
-[ExtractBench](https://github.com/run-llama/ExtractBench) leaderboard with the
-**unmodified official scorer**:
+<p align="center">
+  <strong>Knowledge Yield Nexus for EXtraction</strong><br>
+  A local, tool-using agent that reads documents the way a careful analyst does.
+</p>
 
-| metric | value |
-|---|---|
-| **unified value F1 (overall, 370 documents)** | **92.65** |
-| short / medium / long | 94.12 / 91.52 / 79.73 |
-| precision / recall (short) | 93.42 / 95.07 |
-| precision / recall (medium) | 92.65 / 90.84 |
-| precision / recall (long) | 84.81 / 77.34 |
-| cost per page | 14.29 ¢ (gpt-5.4 list price + Document Intelligence layout) |
-| latency per document (short / medium / long) | 101.9 s / 271.0 s / 867.2 s |
-| documents below 0.50 | 1 (`real_ftx_full_corrupted`, 0.4099) |
+<p align="center">
+  <a href="https://github.com/Nikit117/kynex-harness/actions/workflows/ci.yml"><img src="https://github.com/Nikit117/kynex-harness/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-3b82f6.svg" alt="License"></a>
+  <img src="https://img.shields.io/badge/python-3.10%2B-3b82f6.svg" alt="Python">
+  <img src="https://img.shields.io/badge/ExtractBench-92.65%20F1%20%7C%20rank%2012%2F50-38bdf8.svg" alt="ExtractBench">
+  <img src="https://img.shields.io/badge/docs-docs%2F-3b82f6.svg" alt="Docs">
+</p>
 
-That is **rank 12 of 50** on the published board. The grounding metrics are
-0.00 by construction: the harness emits no per-field citation boxes, so
-`field_citations` is empty — the same situation as the other value-only entries
-on the board.
+<p align="center">
+  <a href="#why">Why</a> •
+  <a href="#results">Results</a> •
+  <a href="#quick-start">Quick start</a> •
+  <a href="#how-it-works">How it works</a> •
+  <a href="#documentation">Documentation</a> •
+  <a href="#contributing">Contributing</a>
+</p>
 
-## What is in the box
+---
 
-```
-autonomous_document_harness/
-  tui/            the interactive TUI (Textual) and the harness service
-  deep/           the agent loop, the model bridge, token accounting
-  tools/          read_page / extract_table / DI layout / vision / search
-  parsers/        PDF, DOCX, XLSX, image staging (+ the OCR fallback)
-  workspace/      the staged-document corpus and the world model
-  models/         the schema and contract models
-  verification/   the entailment checks the agent uses to ground its answers
-  core/           runtime configuration
-  scripts/
-    extract_one.py             single-document entry point (the provider calls this)
-    run_tui_benchmark_v2.py    the runner and the post-processing pipeline
-    bulk_array_extract.py      page-wise enumeration of long record lists
-    structured_array.py        table rows read structurally from the document
-  eval/extractbench/
-    nikit_harness_provider.py  the ExtractBench provider
-```
+KYNEX is an **agentic document-extraction harness**. It stages a document, lets
+the model call tools against it — page text, tables, layout analysis, rendered
+pages — and returns JSON that validates against the requested schema. It is
+not a one-shot prompt, and that is the point: the tools are what let it read a
+26,725-row schedule or a scanned page that has no text layer at all.
 
-### The post-processing pipeline
+On the [ExtractBench](https://github.com/run-llama/ExtractBench) leaderboard
+(370 documents, scored with the unmodified official scorer) it reaches
+**92.65 unified value F1 — rank 12 of 50**, at 14.29 cents per page.
 
-The measured score is not "one prompt". It is the agent plus five
-post-processing rules applied to its output, in this order:
+| | Short | Medium | Long | **Overall** |
+|---|---:|---:|---:|---:|
+| Unified value F1 | 94.12 | 91.52 | 79.73 | **92.65** |
+| Precision | 93.42 | 92.65 | 84.81 | |
+| Recall | 95.07 | 90.84 | 77.34 | |
+| Documents | 252 | 98 | 20 | 370 |
+| Latency / document | 101.9 s | 271.0 s | 867.2 s | |
 
-1. `answer_to_json_v2` — the model's answer becomes schema-shaped JSON;
-2. `fill_massive_arrays` — arrays with thousands of rows are enumerated page
-   by page (a 26,725-row `owners` array otherwise comes back as `null`);
-3. `prune_non_record_items` — contact blocks, blank items, table headers and
-   redaction markers are not records;
-4. `normalize_redaction_markers` — a CUI classification marker such as
-   `(b)(4)` is a withheld cell, not a value;
-5. `_apply_structured_arrays` — rows are rebuilt from the document's own
-   tables, because the agent transcribes currency symbols, thousands
-   separators and column alignment by eye.
+The grounding metrics are **0.00 by construction**: the harness does not emit
+per-field citation boxes, so `field_citations` is empty — the same situation as
+the other value-only entries on the board.
 
-## Install
+---
+
+## Why
+
+Extraction benchmarks punish three things that a model does by default:
+
+1. **It answers once.** A 26,725-row `owners` array does not fit in an answer,
+   so the agent returns `null` and the document scores ~0.
+2. **It reads the table by eye.** It gets the right number of rows and then
+   loses the currency symbol, the thousands separator or the column alignment —
+   and the scorer compares values exactly. Across the corpus, **133 of the 370
+   documents have the right row count and not one row that matches exactly**.
+3. **It counts things that are not records.** A contact block, an empty item, a
+   table header, a classification marker: all of them look like rows.
+
+KYNEX fixes all three with tools and post-processing, and every rule is
+measured on the corpus before it ships. See
+[docs/design-notes.md](docs/design-notes.md) for the reasoning behind each
+one and the numbers behind them.
+
+---
+
+## Results
+
+Full tables, the cost derivation and the honest caveats:
+**[docs/benchmarks.md](docs/benchmarks.md)**.
+
+- 92.65 unified value F1 over the published 370-document set, rank 12 of 50
+- the 49-document D3 slice scores 0.8950 and 0.9104 in two independent
+  measurements, with **zero** documents below 0.50 in both
+- one document of the 370 is still below 0.50 (`real_ftx_full_corrupted`, a
+  7,554-row scanned list where the row count is right and the per-row values
+  drift) — reported, not hidden
+
+---
+
+## Quick start
 
 ```bash
-python -m venv .venv && . .venv/bin/activate     # Windows: .venv\Scripts\activate
+git clone https://github.com/Nikit117/kynex-harness
+cd kynex-harness
+python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-Python 3.10+.
-
-## Configure
-
-The harness talks to an Azure OpenAI deployment of **gpt-5.4** and to Azure
-Document Intelligence. Put the credentials in the environment (or in a `.env`
-file that is **never committed** — see `.gitignore`):
-
-| variable | meaning |
-|---|---|
-| `AZURE_OPENAI_ENDPOINT` | the Azure OpenAI endpoint |
-| `AZURE_OPENAI_API_KEY` | the key |
-| `AZURE_OPENAI_CHAT_DEPLOYMENT` | the gpt-5.4 deployment name |
-| `AZURE_OPENAI_API_VERSION` | the API version |
-| `AZURE_DI_ENDPOINT` | Document Intelligence endpoint (optional) |
-| `AZURE_DI_API_KEY` | Document Intelligence key (optional) |
-
-`ADH_LEGACY_ENV` can point at a `.env` file to load instead.
-
-## Run
-
-### Interactive TUI
+Put the credentials in the environment (never in the repository):
 
 ```bash
-python -m autonomous_document_harness.tui
+export AZURE_OPENAI_ENDPOINT=...        # the gpt-5.4 deployment
+export AZURE_OPENAI_API_KEY=...
+export AZURE_OPENAI_CHAT_DEPLOYMENT=...
+export AZURE_OPENAI_API_VERSION=...
+export AZURE_DI_ENDPOINT=...            # optional: table rows + the OCR fallback
+export AZURE_DI_API_KEY=...
 ```
 
-### Scriptable
+Then drive it:
 
 ```bash
+# interactive TUI
+python -m autonomous_document_harness.tui
+
 # one document, one schema prompt
-python -m autonomous_document_harness.tui.app run <file.pdf> --prompt "<schema prompt>"
+python -m autonomous_document_harness.tui.app run paper.pdf --prompt "$(cat prompt.txt)"
 
 # the same pipeline the benchmark measures: agent + the five rules
 python autonomous_document_harness/scripts/extract_one.py \
-    --source <file.pdf> --schema <schema.json> --out extraction.json
+    --source paper.pdf --schema schema.json --out extraction.json
 ```
 
-The rule switches the measured run used are opt-in in the harness, so set them
-when you want the benchmark behaviour:
+Full instructions: [docs/installation.md](docs/installation.md) ·
+[docs/usage.md](docs/usage.md) · [docs/configuration.md](docs/configuration.md)
 
-```bash
-export ADH_BULK_ARRAYS=1 ADH_PRUNE_NON_RECORDS=1 ADH_REDACTION_MARKERS=1
-export ADH_OCR_FALLBACK=1 ADH_BULK_OCR=1 ADH_STRUCTURED_ARRAYS=1
+---
+
+## How it works
+
+```
+   document
+       │
+       ▼
+  ┌──────────────┐   staged: text, tables, page images
+  │   parsers/   │   (+ the OCR fallback for pages with no text layer)
+  └──────┬───────┘
+         ▼
+  ┌──────────────┐   read_page · extract_table · layout analysis ·
+  │  the agent  │   vision · search — the model drives the tools
+  └──────┬───────┘
+         ▼
+  ┌──────────────┐   1. answer_to_json_v2
+  │ post-process │   2. fill_massive_arrays        (enumerate long lists page by page)
+  │              │   3. prune_non_record_items     (contacts, blanks, headers)
+  │              │   4. normalize_redaction_markers (a marker is a withheld cell)
+  │              │   5. _apply_structured_arrays   (rebuild rows from the tables)
+  └──────┬───────┘
+         ▼
+    schema-shaped JSON
 ```
 
-### As an ExtractBench provider
+| rule | what it fixes | measured on |
+|---|---|---|
+| page-wise enumeration | a 26,725-row array returned as `null` | `real_oklahoma_unclaimed_2024` 0.00 → 0.97 |
+| non-record pruning | contact blocks, empty items, table headers | `sf1449_supplies_services_0046` 0.23 → 0.83 |
+| redaction markers | `(b)(4)` is a withheld cell, not a value | `gov_clin_schedule_0031` 0.47 → 0.88 |
+| structured table rows | values read structurally, not by eye | `real_franklin_nov_2025` 0.57 → 1.00 |
+| OCR fallback | pages with no text layer | `real_imedia_full_corrupted` 0.10 → 0.97 |
 
-The provider runs `extract_one.py` as a subprocess, like the other
-coding-agent pipelines, so the benchmark environment needs no extra packages.
+Every rule has a kill switch (`ADH_BULK_ARRAYS`, `ADH_PRUNE_NON_RECORDS`,
+`ADH_REDACTION_MARKERS`, `ADH_OCR_FALLBACK`, `ADH_BULK_OCR`,
+`ADH_STRUCTURED_ARRAYS`), so you can measure the agent on its own.
 
-```bash
-export KYNEX_HARNESS_ROOT=/path/to/kynex-harness
-export KYNEX_HARNESS_PYTHON=/path/to/kynex-harness/.venv/bin/python
-uv run extract-bench run kynex_gpt_5_4
+---
+
+## Documentation
+
+| | |
+|---|---|
+| [docs/architecture.md](docs/architecture.md) | how the system works, module by module |
+| [docs/design-notes.md](docs/design-notes.md) | the engineering decisions and their measured effect |
+| [docs/benchmarks.md](docs/benchmarks.md) | the measured results, in full |
+| [docs/extractbench.md](docs/extractbench.md) | reproducing the leaderboard run |
+| [docs/installation.md](docs/installation.md) | install and configure |
+| [docs/usage.md](docs/usage.md) | the TUI, the scriptable entry points, the provider |
+| [docs/configuration.md](docs/configuration.md) | every environment variable |
+| [docs/development.md](docs/development.md) | working on the code |
+| [docs/faq.md](docs/faq.md) | the questions people actually ask |
+| [docs/roadmap.md](docs/roadmap.md) | what is next |
+
+---
+
+## Repository layout
+
+```
+autonomous_document_harness/
+  tui/              the Textual TUI and the harness service
+  deep/             the agent loop, the model bridge, token accounting
+  tools/            read_page, extract_table, layout analysis, vision, search
+  parsers/          PDF, DOCX, XLSX, image staging, the OCR fallback
+  workspace/        the staged corpus and the world model
+  models/           schema, contract and routing models
+  verification/     the entailment and completeness checks
+  core/             runtime configuration
+  scripts/          extract_one.py, the pipeline, the extractors
+  eval/extractbench/ the ExtractBench provider
+docs/               the documentation you are reading
+tests/              the test suite
 ```
 
-## Reproducibility notes
+---
 
-* The run is **one draw of the harness**, not a deterministic property of it:
-  two runs of the same code differ by a mean of ~0.02 overall and by up to 0.3
-  on individual documents.
-* No rule de-duplicates rows: the corpus ground truth legitimately contains
-  exact duplicate rows, so de-duplication would be wrong.
-* The official scorer, the schemas and the ground truth were not modified.
+## Contributing
 
-## What is deliberately not here
+Bug reports, ideas and pull requests are welcome — see
+[CONTRIBUTING.md](CONTRIBUTING.md). If you want to add an extraction rule,
+[docs/design-notes.md](docs/design-notes.md) explains the bar it has to clear:
+it must be measured on the corpus, must not fire where it would hurt, and must
+come with a kill switch.
 
-* the RFQ / CPQ workbook feature and its prompts,
-* the benchmark corpus, the ground truth and the run artifacts,
-* any credential, `.env` file or endpoint.
+---
 
 ## License
 
-Apache-2.0. See `LICENSE`.
+Apache-2.0 — see [LICENSE](LICENSE).
+
+The ExtractBench leaderboard entry for this system is
+[PR #84](https://github.com/run-llama/ExtractBench/pull/84).
+
+---
+
+## A note on this release
+
+The public tree is the code that was measured, with three things changed for
+publication:
+
+1. **The RFQ/CPQ workbook feature is not here.** Its prompts contain
+   company-specific material, so the feature, its prompt module and the
+   engine it used were removed from the published tree.
+2. **The internal project name is not here.** The harness was built for a
+   project whose name does not appear in this repository.
+3. **A few domain examples were replaced with neutral placeholders of the
+   same shape.** The agent's instruction text and a handful of documentation
+   strings used the vocabulary of the documents the harness was first written
+   for. They are illustrations of the *format* an answer must take, not
+   instructions, and they were replaced so the published code says nothing
+   about that domain. The measured run used the original text.
+
+None of these changes touch the extraction pipeline, the rules or their
+thresholds. The published entry point reproduces the stored prediction of the
+measured run -- 178 of 178 rows identical on the document where the
+structured-table rule fires -- so the code in this repository is the code that
+produced 92.65.
+
+No credential, endpoint, document or ground truth is in this repository.

@@ -9,8 +9,7 @@ value column, answer type and cardinality. No CPQ-specific logic lives here.
 from __future__ import annotations
 
 import re
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from pydantic import BaseModel, Field
 

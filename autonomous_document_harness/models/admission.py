@@ -266,7 +266,7 @@ def admit(
 
     With escalate_gray_zone=True, borderline rejections (heuristic
     IRRELEVANT/SUPPORTING_CONTEXT but entity alignment >= 0.25 — e.g.
-    vocabulary mismatch like cubicle/cabinet that keyword scoring cannot see)
+    vocabulary mismatch like unit/box that keyword scoring cannot see)
     are also judged by the model, which may infer synonym semantics. Clear
     ANSWERs are always trusted; clear misses (< 0.25) never escalate.
     """
@@ -295,7 +295,7 @@ def admit(
                     "Decide whether this observation answers the requested contract. "
                     'Reply in JSON like {"verdict": "ANSWER|SUPPORTING_CONTEXT|'
                     'IRRELEVANT|AMBIGUOUS", "reason": "<concise>"}. '
-                    "Synonyms are allowed (e.g. cubicle/cabinet, panel/enclosure). "
+                    "Synonyms are allowed (e.g. unit/box, panel/housing). "
                     "ANSWER only if the observation states the requested attribute "
                     "for the requested entity. Glossary definitions and generic "
                     "descriptions are SUPPORTING_CONTEXT or IRRELEVANT, never ANSWER.\n"

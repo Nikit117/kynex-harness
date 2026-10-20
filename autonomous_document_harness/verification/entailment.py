@@ -11,7 +11,7 @@ from typing import Any, List, Tuple
 
 from ..core.schemas import GateResult, RecoveryTask, make_id
 from ..workspace.indexing import tokenize
-from .base import Gate, VerificationContext
+from .base import VerificationContext
 
 _NUMBER_RE = re.compile(r"-?\d[\d,]*\.?\d*")
 

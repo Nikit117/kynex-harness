@@ -1,7 +1,7 @@
 """Structured conversational state for follow-up context and entity resolution.
 
 Maintains entities, results, and evidence across turns so follow-up questions
-like "redundant?", "what about ESD?", "compare both", "show as table" work
+like "redundant?", "what about the second one?", "compare both", "show as table" work
 without reinvestigating documents.
 """
 
@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional
 
 
 @dataclass
@@ -135,7 +135,7 @@ class ConversationState:
                 entity = self.active_entities[0]
                 return f"Is {entity} {prompt}?" if "?" not in prompt else f"Regarding {entity}: {prompt}"
 
-        # "compare both", "compare them", "compare DCS and ESD"
+        # "compare both", "compare them", "compare the two systems"
         compare_match = re.match(r"^compare\s+(.+)$", lower)
         if compare_match:
             target = compare_match.group(1).strip()
@@ -186,11 +186,11 @@ class ConversationState:
         entities = []
         combined = f"{prompt} {answer}"
         patterns = [
-            r'\b(DCS|ESD|SIS|F&G|PLC|SCADA|HMI|MCC|VFD|UPS)\b',
-            r'\b(AC\s*800M|S800|ABB|Honeywell|Emerson|Yokogawa)\b',
+            r'\b[A-Z]{2,6}\b',
+            r'\b[A-Z]{1,4}[-_]?\d{3,5}[A-Z]?\b',
             r'\b(Area\s+\d+|Unit\s+\d+|Zone\s+\d+)\b',
-            r'\b(I/O|IO)\s+(count|schedule|list|specification)\b',
-            r'\b(cabinet|controller|processor|module|rack)\b',
+            r'\b(point|tag|I/O)\s+(count|schedule|list|specification)\b',
+            r'\b(unit|device|processor|module|rack)\b',
         ]
         for pat in patterns:
             for m in re.finditer(pat, combined, re.IGNORECASE):

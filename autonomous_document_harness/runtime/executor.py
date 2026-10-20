@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
-from typing import Dict, List, Tuple
+from typing import List, Tuple
 
 from ..tools.computer import DocumentComputer
 from ..tools.registry import Observation

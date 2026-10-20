@@ -6,14 +6,10 @@ from enum import Enum
 from typing import Any
 
 from textual.containers import VerticalScroll
-from textual.widget import Widget
 from textual.app import RenderResult
-from textual.reactive import reactive
 from textual.widgets import Static
 from rich.text import Text
 from rich.markdown import Markdown
-from rich.panel import Panel
-from rich.table import Table
 from rich.console import Group
 
 

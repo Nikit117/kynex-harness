@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from collections import Counter
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Tuple
+from typing import Dict, List, Tuple
 
 from ..core.config import RuntimeConfig
 from .planner import Action

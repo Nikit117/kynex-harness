@@ -416,7 +416,6 @@ class RunStore:
         }
 
     def save_ledger(self, path: str) -> None:
-        import json
 
         Path(path).parent.mkdir(parents=True, exist_ok=True)
         Path(path).write_text(json.dumps(self.to_ledger(), indent=2, default=str))
@@ -458,6 +457,5 @@ class RunStore:
 
     @classmethod
     def load_ledger(cls, path: str) -> "RunStore":
-        import json
 
         return cls.from_ledger(json.loads(Path(path).read_text(encoding="utf-8")))

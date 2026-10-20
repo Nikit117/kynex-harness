@@ -271,7 +271,7 @@ def _trail_qualifiers(base: Dict[str, Any], trail: str) -> Dict[str, Any]:
 
 
 def qualify_subject(subject: str, head: str) -> str:
-    """Banner/group roots join the entity key ("Boiler" -> "DCS Boiler").
+    """Banner/group roots join the entity key ("Boiler" -> "Plant Boiler").
 
     Only when the header path root is absent from the subject already; plain
     single-segment headers leave the subject untouched.
@@ -289,7 +289,7 @@ def qualify_subject(subject: str, head: str) -> str:
 def _split_header_path(head: str) -> tuple[str, Dict[str, Any]]:
     """Hierarchical header segment: attribute = leaf, path preserved.
 
-    "DCS > AI" -> ("AI", {"header_path": "DCS > AI"}); plain "AI" unchanged.
+    "Plant > AI" -> ("AI", {"header_path": "Plant > AI"}); plain "AI" unchanged.
     """
     parts = [p.strip() for p in str(head or "").split(">") if p.strip()]
     if len(parts) > 1:
@@ -385,12 +385,12 @@ def _mine_line(
             return out
     if "//" in line:
         # Header-contextualized row built by the investigator, e.g.
-        # "System | AI | AO  //  DCS | 1248 | 312".
+        # "System | AI | AO  //  Plant | 1248 | 312".
         head_part, _, val_part = line.partition("//")
         headers = [c.strip() for c in head_part.split("|")]
         values = [c.strip() for c in val_part.split("|")]
         if len(headers) == len(values) and len(headers) >= 2:
-            # Entity key = leading non-numeric cells ("DCS Boiler", "DCS", ...).
+            # Entity key = leading non-numeric cells ("Plant Boiler", "Plant", ...).
             key_len = 0
             for cell in values[:-1]:
                 if re.match(r"^[A-Za-z]", (cell or "").strip()) and not re.fullmatch(

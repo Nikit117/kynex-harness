@@ -10,7 +10,7 @@ import base64
 import io
 import json
 import re
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 INSPECT_PROMPT = (
     "You are a precise document-vision reader. Study the rendered document image and "

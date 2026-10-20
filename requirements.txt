@@ -1,4 +1,4 @@
-﻿# Minimal runtime deps (stdlib-first; no first-party reuse).
+# Minimal runtime deps (stdlib-first; no first-party reuse).
 # Install: .venv\Scripts\python.exe -m pip install -r autonomous_document_harness/requirements.txt
 pydantic>=2.10
 pdfplumber>=0.11

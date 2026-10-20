@@ -8,11 +8,10 @@ from __future__ import annotations
 
 import argparse
 import sys
-import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from .sanitize import sanitize_text, scrub_secrets
+from .sanitize import sanitize_text
 from .services.events import EventBus
 from .services.harness import HarnessService
 from .services.sessions import SessionService
@@ -47,14 +46,13 @@ def create_textual_app(session, sessions, initial_path: str = ""):
     """Build the full Textual App (headless-testable via run_test pilot)."""
     from textual.app import App, ComposeResult
     from textual.binding import Binding
-    from textual.containers import Vertical
-    from textual.widgets import Footer, Header, Input, RichLog, Static
+    from textual.widgets import Input
 
     from .commands import CommandRegistry
     from .conversation_state import ConversationState
     from .router import ConversationRouter, Intent, IntentCompiler
     from .widgets.activity import ActivityIndicator
-    from .widgets.conversation import ConversationView, MessageRole
+    from .widgets.conversation import ConversationView
     from .widgets.prompt import HarnessInput
     from .widgets.status_bar import StatusBar
 

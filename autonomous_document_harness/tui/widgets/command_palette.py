@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from textual.screen import ModalScreen
-from textual.widgets import OptionList, Static
+from textual.widgets import OptionList
 from textual.widgets.option_list import Option
 from textual.app import ComposeResult
 

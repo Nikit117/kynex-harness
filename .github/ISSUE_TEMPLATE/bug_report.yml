@@ -1,0 +1,42 @@
+name: Bug report
+description: Something behaves differently from what the documentation says.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Please do not paste documents that contain
+        confidential material into an issue.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      placeholder: "git describe --tags"
+    validations:
+      required: true
+  - type: dropdown
+    id: entry-point
+    attributes:
+      label: Which entry point
+      options:
+        - The interactive TUI
+        - "tui.app run"
+        - "tui.app ask"
+        - extract_one.py
+        - The ExtractBench provider
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or error output
+      render: shell
+    validations:
+      required: false

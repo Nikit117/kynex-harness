@@ -5,13 +5,12 @@ from __future__ import annotations
 import json
 import re
 import time
-import urllib.request
 from typing import Any, Dict, List
 
 from ..core.config import RuntimeConfig
 from ..core.schemas import InvestigationGoal
 from . import heuristic
-from .schemas import CandidateClaim, ModelRequest, ModelResponse, ModelUnavailable
+from .schemas import ModelRequest, ModelResponse, ModelUnavailable
 
 from ..core.schemas import InformationNeed  # noqa: E402  (re-export for callers)
 
@@ -38,7 +37,7 @@ Extract factual claims from document snippets for the given spec. Reply with a
 JSON object: {"candidates": [{"subject": "...", "attribute": "...",
 "value": <number|string|null>, "units": null|string, "snippet": "<source line>",
 "qualifiers": {}}]}. Rules: subject MUST name the specific entity or record
-the fact is about (e.g. "10-P-101A", "DCS Boiler"), never a generic category
+the fact is about (e.g. "10-P-101A", "Unit Boiler"), never a generic category
 like "equipment" or "system" — distinct entities must never share a subject.
 Use null when the value is absent. Never invent values. Copy snippets verbatim
 from the input. Skip excluded content named in the spec.

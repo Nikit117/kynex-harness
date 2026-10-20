@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import List
 
 from ..core.schemas import GateResult, RecoveryTask, make_id
-from .base import Gate, VerificationContext
+from .base import VerificationContext
 
 
 class ContradictionGate:

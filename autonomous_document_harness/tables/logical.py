@@ -44,8 +44,8 @@ def resolve_header_paths(header_rows: List[List[str]]) -> List[List[str]]:
     """Multi-row/merged headers -> per-column paths, inheriting blanks.
 
     Blank cells inherit from the LEFT (grouped columns); deeper rows refine.
-    Example: [["System", "DCS", "DCS"], ["Area", "AI", "AO"]]
-             -> [["System"], ["DCS", "AI"], ["DCS", "AO"]]
+    Example: [["Group", "Alpha", "Alpha"], ["Area", "AI", "AO"]]
+             -> [["Group"], ["Alpha", "AI"], ["Alpha", "AO"]]
     """
     rows = [[_norm(c) for c in r] for r in header_rows if any(_norm(c) for c in r)]
     if not rows:
@@ -72,9 +72,9 @@ def apply_banner_labels(
 ) -> List[List[str]]:
     """Banner/group row above headers becomes each column's path root.
 
-    Example: banner ["", "DCS", "", "SIS", ""] over headers
+    Example: banner ["", "Alpha", "", "Beta", ""] over headers
     ["Area", "AI", "AO", "AI", "AO"] ->
-    [["Area"], ["DCS", "AI"], ["DCS", "AO"], ["SIS", "AI"], ["SIS", "AO"]]
+    [["Area"], ["Alpha", "AI"], ["Alpha", "AO"], ["Beta", "AI"], ["Beta", "AO"]]
     """
     banner = [_norm(c) for c in banner]
     if not any(banner):

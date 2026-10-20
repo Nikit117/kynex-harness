@@ -17,28 +17,13 @@ from typing import Any, Dict, List, Optional
 
 from ...core.config import RuntimeConfig
 from ...deep.agent import DeepAgentInvestigator
-from ...deep.contracts import compile_contract_text
 from ...deep.store import RunStore
-from ...tools.azure_di import di_configured as _di_configured
 from ...tools.computer import DocumentComputer
 from ...workspace.corpus import Corpus, SUPPORTED_EXTS, fingerprint_file
 from ...workspace.world_model import WorldModel
 from .events import (
-    ANSWER_CREATED,
-    ANSWER_REJECTED,
-    ANSWER_VERIFIED,
-    CONTRACT_CREATED,
-    DI_CALLED,
-    OBJECTIVE_COMPILED,
-    PAGE_READ,
-    PERCEPTION_ESCALATED,
     RUN_COMPLETED,
-    RUN_FAILED,
     RUN_STARTED,
-    SEARCH_COMPLETED,
-    SEARCH_STARTED,
-    TABLE_DETECTED,
-    VISION_CALLED,
     EventBus,
 )
 
@@ -237,7 +222,7 @@ class HarnessService:
 
     # -- ask (normal prompts; NEVER a workbook) --------------------------
     # A message is small talk when EVERY word is greeting/social filler —
-    # any content word (DCS, pump, controller...) forces investigation.
+    # any content word (pump, controller...) forces investigation.
     _SMALL_TALK_WORDS = frozenset(
         {
             "hi",
@@ -861,7 +846,7 @@ class HarnessService:
             "   You have NOT exhausted options until you have tried ALL four methods.\n"
             "7. READ NOTES: Check text around tables for semantics "
             "(e.g. 'includes spares', 'not included in summary', "
-            "'per cabinet'). Notes change the meaning of numbers.\n\n"
+            "'per unit'). Notes change the meaning of numbers.\n\n"
             "## CRITICAL RULES\n"
             "- Text extraction is UNRELIABLE for tables. Headers get "
             "scrambled, values drop, entire tables can be missing from "
@@ -1192,7 +1177,7 @@ class HarnessService:
 
         di_found = []
         for idx, t in enumerate(page_tables):
-            grid = t.grid()
+            _grid = t.grid()
             di_found.append(
                 {
                     "page": page_number,
@@ -1705,12 +1690,9 @@ class HarnessService:
         }
 
     def export(self, fmt: str, path: str = "") -> str:
-        from ...output import compiler as output_compiler
 
         if not self._store:
             raise ValueError("nothing to export yet — ask a question first")
-        from ...evidence.claims import ClaimStore
-        from ...verification import VerificationReport
 
         # Reuse the standard compiler via a lightweight claim projection.
         result = {
