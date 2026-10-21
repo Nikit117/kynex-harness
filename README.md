@@ -262,6 +262,15 @@ for the vision path, in both the Azure-compatible and the standard mode.
 | [docs/development.md](docs/development.md) | working on the code |
 | [docs/faq.md](docs/faq.md) | the questions people actually ask |
 | [docs/roadmap.md](docs/roadmap.md) | what is next |
+| [docs/VERIFICATION.md](docs/VERIFICATION.md) | how to verify the benchmark result, and the evidence bundle |
+
+### The evidence bundle
+
+The v0.1.0 release carries everything needed to check the measured result
+without taking anyone's word for it: the saved extraction of every document,
+the official per-document scores, the same slice measured with **no Document
+Intelligence at all**, a sha256 manifest of the bundle and a one-page guide
+([docs/VERIFICATION.md](docs/VERIFICATION.md)).
 
 ---
 
