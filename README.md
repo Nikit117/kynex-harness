@@ -206,6 +206,33 @@ worth.
 
 ---
 
+## Transports
+
+The harness talks to the model through one of two transports, selected with
+`ADH_MODEL_BACKEND`:
+
+| backend | endpoint | auth |
+|---|---|---|
+| `openai-compatible` (default for Azure) | `<base>/openai/deployments/<deployment>/chat/completions?api-version=...` | API key |
+| `openai` | `<base>/chat/completions` | Bearer token |
+
+`openai` is opt-in and works with any standard Chat Completions server, so the
+harness can run against OpenAI itself or a compatible server you host. The
+Azure path is unchanged and stays the default when the Azure variables are
+present.
+
+| variable | meaning |
+|---|---|
+| `ADH_MODEL_BACKEND` | `openai` for the standard Chat Completions transport |
+| `ADH_MODEL_BASE_URL` | the endpoint base URL |
+| `ADH_MODEL_API_KEY` | the key (sent as a Bearer token in `openai` mode) |
+| `ADH_MODEL_DEPLOYMENT` | the model or deployment name |
+
+The transport choice is covered by tests for the agent's tool-calling path and
+for the vision path, in both the Azure-compatible and the standard mode.
+
+---
+
 ## Documentation
 
 | | |
