@@ -124,6 +124,20 @@ python autonomous_document_harness/scripts/extract_one.py \
 Full instructions: [docs/installation.md](docs/installation.md) ·
 [docs/usage.md](docs/usage.md) · [docs/configuration.md](docs/configuration.md)
 
+### Reproduce the benchmark result
+
+`ash
+git clone https://github.com/Nikit117/kynex-harness
+cd kynex-harness
+python scripts/verify_against_extractbench.py --data /path/to/extractbench-data --docs 5
+`
+
+The script provisions the environment, runs the harness with the same six rule
+switches the submitted run used, and prints every document next to the published
+per-document score. --split medium runs one split, --data-di off runs with
+no Document Intelligence at all. The full reproduction is 370 documents and
+4,869 pages, so start with --docs 5.
+
 ---
 
 ## How it works
