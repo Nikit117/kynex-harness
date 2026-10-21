@@ -65,6 +65,11 @@ python autonomous_document_harness/scripts/extract_one.py \
     --source <document.pdf> --schema <schema.json> --out /tmp/one.json
 ```
 
+\
+uff format\ is not enforced over the vendored tree: the harness is published
+as it was measured, byte for byte, so the code in this repository is the code
+that produced the benchmark number.  Run it over the files you add or change.
+
 ## Tests
 
 `pytest -q`. The suite covers the pure functions -- the pruning rules, the
