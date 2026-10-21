@@ -75,7 +75,7 @@ class ModelGateway:
 
     def model_reasoning_available(self) -> bool:
         """True when open-ended completions can actually run."""
-        if self.backend != "openai-compatible":
+        if self.backend not in ("openai-compatible", "openai"):
             return False
         model = self.config.model
         return bool(model.api_key and model.base_url and model.chat_deployment)
@@ -243,7 +243,7 @@ class ModelGateway:
                 "heuristic backend has no open-ended completions; "
                 "use parse_goal/extract_candidates or configure ADH_MODEL_BACKEND"
             )
-        if self.backend == "openai-compatible":
+        if self.backend in ("openai-compatible", "openai"):
             return self._openai_compatible(request)
         raise ModelUnavailable(f"unknown model backend '{self.backend}'")
 
@@ -251,17 +251,22 @@ class ModelGateway:
         model = self.config.model
         if not model.api_key or not model.base_url or not model.chat_deployment:
             raise ModelUnavailable(
-                "openai-compatible backend needs ADH_MODEL_API_KEY, ADH_MODEL_BASE_URL "
+                "model backend needs ADH_MODEL_API_KEY, ADH_MODEL_BASE_URL "
                 "and ADH_MODEL_DEPLOYMENT"
             )
-        url = (
-            model.base_url.rstrip("/")
-            + "/openai/deployments/"
-            + model.chat_deployment
-            + "/chat/completions?api-version="
-            + (model.api_version or "2024-10-21")
-        )
+        if self.backend == "openai":
+            url = model.base_url.rstrip("/") + "/chat/completions"
+        else:
+            url = (
+                model.base_url.rstrip("/")
+                + "/openai/deployments/"
+                + model.chat_deployment
+                + "/chat/completions?api-version="
+                + (model.api_version or "2024-10-21")
+            )
         payload: Dict[str, Any] = {"max_completion_tokens": request.max_tokens}
+        if self.backend == "openai":
+            payload["model"] = model.chat_deployment
         if request.images:
             parts: List[Dict[str, Any]] = [{"type": "text", "text": request.prompt}]
             parts.extend(
@@ -274,19 +279,28 @@ class ModelGateway:
         if request.response_format == "json_object":
             payload["response_format"] = {"type": "json_object"}
         started = time.perf_counter()
-        body = self._post_chat(url, model.api_key, payload)
+        body = self._post_chat(
+            url, model.api_key, payload, bearer_auth=self.backend == "openai"
+        )
         return self._finish_openai_response(body, started)
 
     @staticmethod
-    def _post_chat(url: str, api_key: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+    def _post_chat(
+        url: str, api_key: str, payload: Dict[str, Any], *, bearer_auth: bool = False
+    ) -> Dict[str, Any]:
         """POST with max_completion_tokens (GPT-5.x), retrying legacy max_tokens."""
         import urllib.error
 
         def _send(body: Dict[str, Any]) -> Dict[str, Any]:
+            headers = {"Content-Type": "application/json"}
+            if bearer_auth:
+                headers["Authorization"] = f"Bearer {api_key}"
+            else:
+                headers["api-key"] = api_key
             req = urllib.request.Request(
                 url,
                 data=json.dumps(body).encode("utf-8"),
-                headers={"Content-Type": "application/json", "api-key": api_key},
+                headers=headers,
                 method="POST",
             )
             try:

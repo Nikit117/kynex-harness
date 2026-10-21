@@ -30,7 +30,7 @@ def _env_float(name: str, default: float) -> float:
 
 @dataclass
 class ModelConfig:
-    backend: str = "heuristic"  # heuristic | openai-compatible
+    backend: str = "heuristic"  # heuristic | openai-compatible (Azure) | openai
     base_url: str = ""
     chat_deployment: str = ""
     embedding_deployment: str = ""
