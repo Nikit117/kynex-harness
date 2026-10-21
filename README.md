@@ -295,9 +295,9 @@ The ExtractBench leaderboard entry for this system is
 The public tree is the code that was measured, with three things changed for
 publication:
 
-1. **The RFQ/CPQ workbook feature is not here.** Its prompts contain
-   company-specific material, so the feature, its prompt module and the
-   engine it used were removed from the published tree.
+1. **A secondary workbook feature of the original deployment is not here.**
+   Its prompts contain company-specific material, so the feature, its prompt
+   module and the engine it used were removed from the published tree.
 2. **The internal project name is not here.** The harness was built for a
    project whose name does not appear in this repository.
 3. **A few domain examples were replaced with neutral placeholders of the
