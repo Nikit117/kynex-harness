@@ -16,7 +16,7 @@ scorer (`extract_bench.evaluation.score_case.score_extract_prediction`).
 | precision, short / medium / long | 93.42 / 92.65 / 84.81 |
 | recall, short / medium / long | 95.07 / 90.84 / 77.34 |
 | documents below 0.50 | 1 |
-| cost per page | 14.29 cent |
+| cost per page | 14.17 cent |
 | latency per document, short / medium / long | 101.9 s / 271.0 s / 867.2 s |
 
 **Rank 12 of 50** on the published board. That is above OpenAI GPT-6 Astra
@@ -55,8 +55,8 @@ The 49-document D3 slice was measured twice, independently: **0.8950** and
 
 Priced at the public list price of gpt-5.4 ($2.50 / 1M input, $15.00 / 1M
 output) plus Azure Document Intelligence Layout analysis ($10.00 / 1,000
-pages) for the pages the harness analyses: **USD 696** for the whole run, or
-**14.29 cents per page**. The Azure resource's own idle cost is not included,
+pages) for the pages the harness analyses: **USD 690** for the whole run, or
+**14.17 cents per page**. The Azure resource's own idle cost is not included,
 and a re-run may differ.
 
 ## The caveats

@@ -13,7 +13,8 @@
   <a href="https://github.com/Nikit117/kynex-harness/actions/workflows/ci.yml"><img src="https://github.com/Nikit117/kynex-harness/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-3b82f6.svg" alt="License"></a>
   <img src="https://img.shields.io/badge/python-3.11%2B-3b82f6.svg" alt="Python">
-  <img src="https://img.shields.io/badge/ExtractBench-92.65%20F1%20%7C%20rank%2012%2F50-38bdf8.svg" alt="ExtractBench">
+  <img src="https://img.shields.io/badge/ExtractBench-92.65%20unified%20value%20F1-38bdf8.svg" alt="ExtractBench 92.65">
+  <a href="https://github.com/run-llama/ExtractBench/pull/84"><img src="https://img.shields.io/badge/leaderboard%20entry-PR%20%2384%20pending-64748b.svg" alt="leaderboard entry pending"></a>
   <img src="https://img.shields.io/badge/docs-docs%2F-3b82f6.svg" alt="Docs">
 </p>
 
@@ -36,7 +37,7 @@ not a one-shot prompt, and that is the point: the tools are what let it read a
 
 On the [ExtractBench](https://github.com/run-llama/ExtractBench) leaderboard
 (370 documents, scored with the unmodified official scorer) it reaches
-**92.65 unified value F1 — rank 12 of 50**, at 14.29 cents per page.
+**92.65 unified value F1 — rank 12 of 50**, at 14.17 cents per page.
 
 | | Short | Medium | Long | **Overall** |
 |---|---:|---:|---:|---:|
@@ -173,6 +174,35 @@ Every rule has a kill switch (`ADH_BULK_ARRAYS`, `ADH_PRUNE_NON_RECORDS`,
 The leaderboard entry is a local subprocess provider, so the official
 environment needs no extra packages: point it at a checkout and it runs the
 published code.
+
+---
+
+## Limitations, and how these numbers were produced
+
+Being precise about this, because the number is only worth what its method is
+worth.
+
+* **The leaderboard entry is still pending.** The measurement is ours; the
+  ExtractBench entry is pull request
+  [#84](https://github.com/run-llama/ExtractBench/pull/84) and is open. Until
+  the maintainers merge it and re-run the pipeline, the 92.65 is a
+  self-reported figure with the per-document scores published alongside it.
+* **The rules were developed against the same 370 documents the score comes
+  from.** That is what iterating on a public benchmark means, and it means the
+  number is optimistic about unseen documents. Two things limit the damage: the
+  rules are general statements about documents (a contact block is not a
+  record; a table read structurally is worth more than one read by eye), not
+  document-specific patches, and the per-document scores are published so the
+  distribution is visible rather than just the mean.
+* **One run is one draw.** Two runs of the same code differ by a mean of about
+  0.02 overall and by up to 0.3 on a single document. The number is a draw,
+  not a deterministic property of the harness.
+* **The grounding metrics are 0.00 by construction**, because the harness does
+  not export per-field citation boxes.
+* **Document Intelligence is optional** and used for the structured table rows
+  and the OCR fallback of image-only pages. The 49-document D3 slice uses it on
+  no document at all, so that result is reproducible with the model endpoint
+  alone.
 
 ---
 
