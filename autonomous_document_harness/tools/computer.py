@@ -639,15 +639,15 @@ class DocumentComputer:
         return {"doc_id": doc_id, **info}, prov
 
     def _vision_ready(self) -> None:
-        """Raise ToolUnavailable unless GPT-5.4 Vision is actually callable."""
+        """Raise ToolUnavailable unless a vision model is configured."""
         if self.config is None or self.gateway is None:
             raise ToolUnavailable(
                 "vision inspection unavailable: no model configured "
-                "(set ADH_MODEL_BACKEND=openai-compatible with credentials)"
+                "(set ADH_MODEL_BACKEND=openai or openai-compatible with credentials)"
             )
         if not vision_llm_mod.vision_configured(self.config):
             raise ToolUnavailable(
-                "vision inspection unavailable: openai-compatible backend needs "
+                "vision inspection unavailable: model backend needs "
                 "ADH_MODEL_API_KEY/ADH_MODEL_BASE_URL/ADH_MODEL_DEPLOYMENT "
                 "(or AZURE_OPENAI_* equivalents)"
             )

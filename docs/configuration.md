@@ -12,6 +12,24 @@ file, and no secret is ever stored in the repository.
 | `AZURE_OPENAI_CHAT_DEPLOYMENT` | the deployment name (for example `gpt-5.4`) |
 | `AZURE_OPENAI_API_VERSION` | the API version |
 
+### Standard OpenAI-compatible endpoints
+
+Set `ADH_MODEL_BACKEND=openai` to use standard Chat Completions for the agent,
+JSON conversion, bulk extraction, and vision calls:
+
+```bash
+export ADH_MODEL_BACKEND=openai
+export ADH_MODEL_BASE_URL=https://api.example.com/v1
+export ADH_MODEL_API_KEY=your-key
+export ADH_MODEL_DEPLOYMENT=your-model
+```
+
+The base URL includes the endpoint's API prefix (such as `/v1`). Requests use
+Bearer authentication and send `ADH_MODEL_DEPLOYMENT` as the model name.
+`ADH_MODEL_API_VERSION` is not used in this mode. The default backend and the
+existing `openai-compatible` mode continue to use Azure's deployment API.
+Document Intelligence is configured separately below.
+
 ## Document Intelligence
 
 Optional. When it is configured, the harness reads the document's tables

@@ -7,7 +7,7 @@ from ..core.config import RuntimeConfig
 
 def should_use_model(config: RuntimeConfig, kind: str) -> bool:
     """True only when a real provider is configured AND the kind needs it."""
-    if config.model.backend != "openai-compatible":
+    if config.model.backend not in ("openai-compatible", "openai"):
         return False
     model = config.model
     configured = bool(model.api_key and model.base_url and model.chat_deployment)

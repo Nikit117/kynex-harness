@@ -33,9 +33,9 @@ VERIFY_PROMPT = (
 
 
 def vision_configured(config) -> bool:
-    """True only when the openai-compatible backend is fully configured."""
+    """True when an HTTP model backend is fully configured."""
     model = getattr(config, "model", config)
-    if getattr(model, "backend", "") != "openai-compatible":
+    if getattr(model, "backend", "") not in ("openai-compatible", "openai"):
         return False
     return bool(
         getattr(model, "api_key", "")

@@ -1,6 +1,6 @@
 """LangChain chat-model construction for the Deep Agents runtime.
 
-Builds an AzureOpenAI-compatible BaseChatModel from environment variables
+Builds an Azure or standard OpenAI-compatible BaseChatModel from environment variables
 (ADH_MODEL_* or AZURE_OPENAI_*). No credentials are stored in code or state.
 """
 
@@ -27,7 +27,8 @@ def build_chat_model(
 ):
     """Return a BaseChatModel or None when no backend is configured.
 
-    backend: "" (auto) | "openai-compatible" | "azure" | "heuristic".
+    backend: "" (auto) | "openai" | "openai-compatible" | "azure" | "heuristic".
+    "openai" uses standard Chat Completions with Bearer authentication.
     Both "azure" and "openai-compatible" map to AzureChatOpenAI because the
     deployment exposes the Azure OpenAI chat-completions REST shape
     (api-key auth, api-version query). Credentials come from AZURE_OPENAI_*
@@ -53,13 +54,22 @@ def build_chat_model(
     if not deployment:
         return None
     try:
-        from langchain_openai import AzureChatOpenAI
+        from langchain_openai import AzureChatOpenAI, ChatOpenAI
 
         guards: dict[str, Any] = {}
         if request_timeout is not None:
             guards["request_timeout"] = request_timeout
         if max_retries is not None:
             guards["max_retries"] = max_retries
+        if backend == "openai":
+            return ChatOpenAI(
+                base_url=base_url,
+                api_key=api_key,
+                model=deployment,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                **guards,
+            )
         return AzureChatOpenAI(
             azure_endpoint=base_url,
             api_key=api_key,
