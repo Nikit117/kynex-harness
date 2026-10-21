@@ -4,8 +4,9 @@
 
 - Python 3.11 or newer
 - an Azure OpenAI deployment of **gpt-5.4**
-- optionally an Azure Document Intelligence resource (for the table rows and
-  the OCR fallback)
+- an Azure Document Intelligence resource (the agent's table reader, the
+  structured rows and the OCR fallback; it was used on 359 of the 370
+  benchmark documents)
 
 ## From source
 
@@ -30,8 +31,9 @@ export AZURE_OPENAI_CHAT_DEPLOYMENT=gpt-5.4
 export AZURE_OPENAI_API_VERSION=2024-10-21
 ```
 
-Document Intelligence is optional; without it the table rows and the OCR
-fallback are skipped and the rest of the harness works:
+Document Intelligence is the agent's table reader - over the benchmark run it
+was used on 359 of the 370 documents. Without it the harness still runs,
+but the agent falls back to the native table reader and the scores move:
 
 ```bash
 export AZURE_DI_ENDPOINT=https://<your-resource>.cognitiveservices.azure.com

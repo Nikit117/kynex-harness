@@ -31,8 +31,11 @@ export AZURE_OPENAI_CHAT_DEPLOYMENT=gpt-5.4
 export AZURE_OPENAI_API_VERSION=2024-10-21
 ```
 
-Document Intelligence is optional but recommended — it is what makes the table
-rows and the scanned pages work:
+Document Intelligence is the agent's table reader: over the 370-document
+benchmark run it was used on **359 of the 370** documents (2,902 table
+calls), and it also backs the structured-row pass (8 documents) and the OCR
+fallback (1 document). Without it the agent falls back to the native table
+reader and the results move:
 
 ```bash
 export AZURE_DI_ENDPOINT=https://<resource>.cognitiveservices.azure.com

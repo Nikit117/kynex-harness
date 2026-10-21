@@ -32,8 +32,11 @@ Document Intelligence is configured separately below.
 
 ## Document Intelligence
 
-Optional. When it is configured, the harness reads the document's tables
-structurally and falls back to OCR for pages that have no text layer.
+Configured, the harness reads the document's tables through the layout
+model and falls back to OCR for pages that have no text layer. Over the
+370-document benchmark run it read tables on **359 of the 370** documents
+(2,902 calls) and rewrote the agent's rows from those tables on 8 of them,
+so a faithful reproduction needs a Document Intelligence resource.
 
 | variable | meaning |
 |---|---|

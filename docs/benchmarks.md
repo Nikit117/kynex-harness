@@ -32,6 +32,13 @@ one -- a long document has many more chances to be wrong.
 The 49-document D3 slice was measured twice, independently: **0.8950** and
 **0.9104**, with **zero documents below 0.50** in both.
 
+The agent read tables through Document Intelligence on **49 of those 49**
+documents (404 calls), while the structured-row pass and the OCR fallback
+fired on none of them - so on that subset the layout model contributed
+through the table reads only. A separate run of the same slice with **no**
+Document Intelligence credentials at all is published below, with the
+per-document delta.
+
 ### What each rule is worth
 
 | rule | document | before | after |
