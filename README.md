@@ -180,6 +180,7 @@ published code.
 
 | | |
 |---|---|
+| [docs/flow.md](docs/flow.md) | a document from upload to answer, step by step |
 | [docs/architecture.md](docs/architecture.md) | how the system works, module by module |
 | [docs/design-notes.md](docs/design-notes.md) | the engineering decisions and their measured effect |
 | [docs/benchmarks.md](docs/benchmarks.md) | the measured results, in full |
