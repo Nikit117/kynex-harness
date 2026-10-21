@@ -26,7 +26,7 @@ from __future__ import annotations
 import ast
 import pathlib
 
-ROOT = pathlib.Path(__file__).resolve().parents[2]
+ROOT = pathlib.Path(__file__).resolve().parents[1]
 EXTRACT_ONE = ROOT / "autonomous_document_harness/scripts/extract_one.py"
 PROVIDER = ROOT / "autonomous_document_harness/eval/extractbench/kynex_provider.py"
 
