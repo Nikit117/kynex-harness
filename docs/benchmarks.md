@@ -39,6 +39,22 @@ through the table reads only. A separate run of the same slice with **no**
 Document Intelligence credentials at all is published below, with the
 per-document delta.
 
+### The same slice without Document Intelligence
+
+The D3 slice was run again with **no Document Intelligence credentials at all**
+(`ADH_DI_ENDPOINT` and `ADH_DI_API_KEY` empty): the agent falls back to the
+native table reader, the structured-row pass has no tables to read and the OCR
+fallback is unavailable.
+
+| | with ADI | without ADI |
+|---|---:|---:|
+| mean unified value F1 (49 documents) | 0.8950 | **0.8967** (+0.0016) |
+| documents below 0.50 | 0 | 0 |
+
+The structured-row pass and the OCR fallback never fire on this subset, so the
+layout model reaches it only through the agent's table reads - and the native
+table reader reaches the same values.
+
 ### What each rule is worth
 
 | rule | document | before | after |
