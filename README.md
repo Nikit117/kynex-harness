@@ -126,17 +126,32 @@ Full instructions: [docs/installation.md](docs/installation.md) ·
 
 ### Reproduce the benchmark result
 
-`ash
+```bash
 git clone https://github.com/Nikit117/kynex-harness
 cd kynex-harness
 python scripts/verify_against_extractbench.py --data /path/to/extractbench-data --docs 5
-`
+```
 
 The script provisions the environment, runs the harness with the same six rule
 switches the submitted run used, and prints every document next to the published
 per-document score. --split medium runs one split, --data-di off runs with
 no Document Intelligence at all. The full reproduction is 370 documents and
 4,869 pages, so start with --docs 5.
+
+Without an Azure resource, the same run goes through a standard OpenAI key:
+
+```bash
+export OPENAI_API_KEY=sk-...
+python scripts/verify_against_extractbench.py --provider openai \
+    --data /path/to/extractbench-data --docs 5
+```
+
+The default stays `azure`, because that is the configuration the published score
+was measured with. `--provider openai` is a convenience for running the pipeline
+elsewhere, not a reproduction: another provider or model gives its own number,
+so compare the per-document shape rather than only the mean. `--base-url` and
+`--model` point the same profile at any OpenAI-compatible server, including one
+you host yourself.
 
 ---
 
