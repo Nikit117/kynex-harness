@@ -107,6 +107,20 @@ export AZURE_DI_ENDPOINT=...            # optional: table rows + the OCR fallbac
 export AZURE_DI_API_KEY=...
 ```
 
+Without an Azure resource, the same pipeline runs through any standard Chat
+Completions endpoint:
+
+```bash
+export ADH_MODEL_BACKEND=openai
+export ADH_MODEL_BASE_URL=https://api.openai.com/v1   # or any compatible server
+export ADH_MODEL_API_KEY=sk-...
+export ADH_MODEL_DEPLOYMENT=gpt-5.4
+```
+
+The published score was measured on Azure with `gpt-5.4`, so a different
+provider or model gives its own number rather than a reproduction. Document
+Intelligence is Azure-only, and the harness runs without it.
+
 Then drive it:
 
 ```bash
