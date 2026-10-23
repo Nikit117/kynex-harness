@@ -30,6 +30,35 @@ Bearer authentication and send `ADH_MODEL_DEPLOYMENT` as the model name.
 existing `openai-compatible` mode continue to use Azure's deployment API.
 Document Intelligence is configured separately below.
 
+### The verification script's profiles
+
+`scripts/verify_against_extractbench.py` takes `--provider` so the whole
+pipeline can run on a machine that has no Azure resource:
+
+| `--provider` | endpoint | key it reads |
+|---|---|---|
+| `azure` (the default) | `AZURE_OPENAI_ENDPOINT` | `AZURE_OPENAI_API_KEY` |
+| `openai` | `https://api.openai.com/v1` | `OPENAI_API_KEY` |
+
+```bash
+export OPENAI_API_KEY=sk-...
+python scripts/verify_against_extractbench.py --provider openai --docs 5
+```
+
+`--base-url` and `--model` override the profile's endpoint and model name, so
+any OpenAI-compatible server works, including a local one:
+
+```bash
+python scripts/verify_against_extractbench.py --provider openai \
+    --base-url http://localhost:8000/v1 --model my-model --docs 5
+```
+
+**This profile is a convenience, not a reproduction.** The published 92.65 was
+measured on Azure with `gpt-5.4`, so a different provider or model gives a
+different number; the profile never changes the default. The key is read from
+the environment only and is never accepted as a command-line argument, because
+those land in the shell history.
+
 ## Document Intelligence
 
 Configured, the harness reads the document's tables through the layout

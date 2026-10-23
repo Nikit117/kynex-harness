@@ -9,6 +9,9 @@ incremental:
     python scripts/verify_against_extractbench.py --split medium    # one split
     python scripts/verify_against_extractbench.py                   # everything
 
+    # the same run through a third-party endpoint, if Azure is not available
+    python scripts/verify_against_extractbench.py --provider openai --docs 5
+
 It provisions an isolated virtual environment with the harness' dependencies,
 runs the harness over the corpus with the same post-processing the measured
 run used, scores the result with the official scorer when it is importable,
@@ -42,6 +45,51 @@ HARNESS_ENV = {
     "ADH_BULK_OCR": "1",
     "ADH_STRUCTURED_ARRAYS": "1",
 }
+
+# The transports the harness can talk through.  ``azure`` is what the published
+# score was measured on and stays the default; the other two exist so the same
+# pipeline can run without an Azure resource, and they carry their own caveat:
+# a different provider or model is a different number, not a reproduction.
+PROVIDERS = {
+    "azure": {
+        "base_url": "",
+        "model": "",
+        "key_env": "",
+        "note": "the measured configuration; this profile changes nothing",
+    },
+    "openai": {
+        "base_url": "https://api.openai.com/v1",
+        "model": "gpt-5.4",
+        "key_env": "OPENAI_API_KEY",
+        "note": "standard Chat Completions with Bearer authentication",
+    },
+}
+
+
+def provider_env(provider: str, base_url: str = "", model: str = "") -> dict[str, str]:
+    """The model transport this run should use.
+
+    ``azure`` returns nothing at all: it is the configuration the published
+    score was measured with, and this script must never disturb it by accident.
+    The other profiles switch the harness to standard Chat Completions, which is
+    the only path a third-party endpoint exposes.
+    """
+    spec = PROVIDERS[provider]
+    if provider == "azure":
+        return {}
+    return {
+        "ADH_MODEL_BACKEND": "openai",
+        "ADH_MODEL_BASE_URL": base_url or spec["base_url"],
+        "ADH_MODEL_DEPLOYMENT": model or spec["model"],
+    }
+
+
+def provider_key(provider: str, environ) -> str:
+    """The profile's key, read from the variable its own ecosystem already uses."""
+    key_env = PROVIDERS[provider]["key_env"]
+    if not key_env:
+        return ""
+    return (environ.get(key_env) or "").strip()
 
 
 def run(cmd, **kw):
@@ -98,11 +146,9 @@ def official_scores():
     return {}
 
 
-def main() -> int:
+def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser()
-    ap.add_argument(
-        "--data", default=str(DEFAULT_DATA), help="the benchmark data directory"
-    )
+    ap.add_argument("--data", default=str(DEFAULT_DATA), help="the benchmark data directory")
     ap.add_argument("--docs", type=int, default=0, help="only the first N documents")
     ap.add_argument("--split", default="", help="only one split (short/medium/long)")
     ap.add_argument("--out", default="", help="where to write the predictions")
@@ -111,13 +157,38 @@ def main() -> int:
         default="auto",
         help="'auto', 'on' or 'off' for Document Intelligence",
     )
+    ap.add_argument(
+        "--provider",
+        choices=sorted(PROVIDERS),
+        default="azure",
+        help=(
+            "the model transport; 'azure' is the measured configuration and the "
+            "default, 'openai' is a convenience for a machine without an "
+            "Azure resource, and it gives its own number"
+        ),
+    )
+    ap.add_argument("--base-url", default="", help="override the provider's base URL")
+    ap.add_argument("--model", default="", help="override the deployment/model name")
     ap.add_argument("--keep", action="store_true", help="keep the predictions")
-    args = ap.parse_args()
+    return ap
+
+
+def main() -> int:
+    args = build_parser().parse_args()
 
     data_dir = pathlib.Path(args.data).resolve()
     if not data_dir.is_dir():
         print(f"FATAL: no data directory at {data_dir}")
         print("       pass --data <path to the benchmark data>")
+        return 2
+
+    profile = provider_env(args.provider, args.base_url, args.model)
+    key = provider_key(args.provider, os.environ)
+    if args.provider != "azure" and not (key or os.environ.get("ADH_MODEL_API_KEY")):
+        print(
+            "FATAL: --provider %s needs %s in the environment"
+            % (args.provider, PROVIDERS[args.provider]["key_env"])
+        )
         return 2
 
     out_dir = pathlib.Path(args.out or (ROOT / "verify_out")).resolve()
@@ -126,6 +197,9 @@ def main() -> int:
     py = ensure_python()
     env = os.environ.copy()
     env.update(HARNESS_ENV)
+    env.update(profile)
+    if key:
+        env["ADH_MODEL_API_KEY"] = key
     if args.data_di == "off":
         env["ADH_DI_ENDPOINT"] = ""
         env["ADH_DI_API_KEY"] = ""
@@ -138,9 +212,20 @@ def main() -> int:
         env["ADH_DI_API_KEY"] = ""
 
     items = corpus(data_dir, args.split or None, args.docs or None)
-    print(
-        f"   {len(items)} documents from {data_dir}   (DI: {args.data_di})", flush=True
-    )
+    print(f"   {len(items)} documents from {data_dir}   (DI: {args.data_di})", flush=True)
+    if args.provider != "azure":
+        print(
+            "   provider: %s -> %s (%s)"
+            % (
+                args.provider,
+                env.get("ADH_MODEL_BASE_URL"),
+                env.get("ADH_MODEL_DEPLOYMENT"),
+            ),
+            flush=True,
+        )
+        print("   note: the published 92.65 was measured on Azure with gpt-5.4. A", flush=True)
+        print("         different provider or model gives a different number, so", flush=True)
+        print("         compare the per-document shape, not only the mean.", flush=True)
 
     schema_dir = out_dir / "schemas"
     pred_dir = out_dir / "predictions"
