@@ -19,9 +19,10 @@ scorer (`extract_bench.evaluation.score_case.score_extract_prediction`).
 | cost per page | 14.17 cent |
 | latency per document, short / medium / long | 101.9 s / 271.0 s / 867.2 s |
 
-**Rank 12 of 50** on the published board. That is above OpenAI GPT-6 Astra
-(91.91) and Codex (GPT-5.6 Terra Evidence, 92.26), and below the top-10 cut
-of 93.57.
+**92.65 puts it 12th of the 50 systems on the published board** - above OpenAI
+GPT-6 Astra (91.91) and Codex (GPT-5.6 Terra Evidence, 92.26), and below the
+top-10 cut of 93.57. The entry itself is in pull request #84, open with the
+maintainers.
 
 The metric is an unweighted mean over documents: a one-page document counts
 exactly as much as a 192-page one, which is why the long split is the hard

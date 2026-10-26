@@ -157,9 +157,9 @@ The measured run over the published 370-document set:
 | | value |
 |---|---:|
 | unified value F1 | **92.65** |
-| rank on the board | **12 of 50** |
+| position among the 50 listed systems, by score | **12th** |
 | documents below 0.50 | 1 |
-| cost per page | 14.29 cent |
+| cost per page | 14.17 cent |
 
 Full tables, the cost derivation and the caveats are in
 [benchmarks.md](benchmarks.md).

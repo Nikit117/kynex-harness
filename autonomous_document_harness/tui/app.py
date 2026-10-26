@@ -134,7 +134,7 @@ def create_textual_app(session, sessions, initial_path: str = ""):
                 "HARNESS V3\n"
                 "Autonomous Document Computer\n\n"
                 "GPT-5.4  |  Vision  |  Evidence Grounded  |  V3 Iteration 7\n\n"
-                "ExtractBench   92.65 unified value F1  |  rank 12 / 50  |  official scorer\n"
+                "ExtractBench   92.65 unified value F1  |  12th of 50 by score  |  official scorer\n"
                 "              370 documents, unmodified official scorer\n"
                 "Rules          RC-8b / RC-8c / RC-8d / RC-8e / RC-9 / RC-9b / RC-12 / RC-13\n"
                 "Code           https://github.com/Nikit117/kynex-harness\n\n"

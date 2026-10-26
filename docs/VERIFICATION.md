@@ -9,7 +9,7 @@ Everything needed to check the leaderboard row, in one place.
 | system | KYNEX (gpt-5.4) - the harness in this repository |
 | corpus | the published ExtractBench set: 370 documents, 4,869 pages |
 | scorer | the unmodified official scorer (`extract_bench.evaluation.score_case.score_extract_prediction`) |
-| result | **92.65** unified value F1 (94.12 short / 91.52 medium / 79.73 long), rank 12 of 50 |
+| result | **92.65** unified value F1 (94.12 short / 91.52 medium / 79.73 long) - 12th of the 50 listed systems by score; the entry is in pull request #84 |
 | cost | USD 689.72 for the run = 14.17 cents per page (public list prices) |
 | grounding | 0.00 by construction - the harness emits no per-field citation boxes |
 

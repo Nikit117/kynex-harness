@@ -37,7 +37,7 @@ not a one-shot prompt, and that is the point: the tools are what let it read a
 
 On the [ExtractBench](https://github.com/run-llama/ExtractBench) leaderboard
 (370 documents, scored with the unmodified official scorer) it reaches
-**92.65 unified value F1 — rank 12 of 50**, at 14.17 cents per page.
+**92.65 unified value F1 — 12th of the 50 listed systems by score**, at 14.17 cents per page. The entry is in [pull request #84](https://github.com/run-llama/ExtractBench/pull/84) with the maintainers.
 
 | | Short | Medium | Long | **Overall** |
 |---|---:|---:|---:|---:|
@@ -78,7 +78,7 @@ one and the numbers behind them.
 Full tables, the cost derivation and the honest caveats:
 **[docs/benchmarks.md](docs/benchmarks.md)**.
 
-- 92.65 unified value F1 over the published 370-document set, rank 12 of 50
+- 92.65 unified value F1 over the published 370-document set - 12th of the 50 listed systems by score (the entry is in pull request #84)
 - the 49-document D3 slice scores 0.8950 and 0.9104 in two independent
   measurements, with **zero** documents below 0.50 in both
 - one document of the 370 is still below 0.50 (`real_ftx_full_corrupted`, a
@@ -211,7 +211,7 @@ Every rule has a kill switch (`ADH_BULK_ARRAYS`, `ADH_PRUNE_NON_RECORDS`,
 
 | | |
 |---|---|
-| **ExtractBench leaderboard** | **92.65** unified value F1, rank **12 of 50** — [pull request #84](https://github.com/run-llama/ExtractBench/pull/84) |
+| **ExtractBench** | **92.65** unified value F1 — 12th of the 50 listed systems by score; the entry is in [pull request #84](https://github.com/run-llama/ExtractBench/pull/84) |
 | **The D3 slice** | 0.8950 and 0.9104 in two independent runs, zero documents below 0.50 |
 
 The leaderboard entry is a local subprocess provider, so the official
