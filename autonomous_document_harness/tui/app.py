@@ -46,6 +46,7 @@ def create_textual_app(session, sessions, initial_path: str = ""):
     """Build the full Textual App (headless-testable via run_test pilot)."""
     from textual.app import App, ComposeResult
     from textual.binding import Binding
+    from textual.events import Paste
     from textual.widgets import Input
 
     from .commands import CommandRegistry
@@ -136,12 +137,7 @@ def create_textual_app(session, sessions, initial_path: str = ""):
             )
 
             if self.initial_path:
-                result = self.registry.dispatch(f"/add {self.initial_path}")
-                conv.add_system_message(sanitize_text(result.text))
-                if result.action == "add":
-                    self._run_add_in_background(result.payload.get("staged", []))
-                else:
-                    self._update_workspace_stats()
+                self._run_full_add_in_background([self.initial_path])
             else:
                 recent = self.sessions_obj.most_recent()
                 if recent and recent["id"] != self.session_obj["id"]:
@@ -219,6 +215,18 @@ def create_textual_app(session, sessions, initial_path: str = ""):
             self._last_intent = intent
 
             if intent == Intent.COMMAND or line.strip().startswith("/"):
+                stripped_cmd = line.strip()
+                if stripped_cmd.lower().startswith("/add "):
+                    add_args = stripped_cmd[5:].strip()
+                    if add_args:
+                        import shlex
+                        try:
+                            paths = shlex.split(add_args, posix=False)
+                        except ValueError:
+                            paths = [add_args]
+                        paths = [p.strip('"').strip("'") for p in paths]
+                        self._run_full_add_in_background(paths)
+                        return
                 result = self.registry.dispatch(line)
                 if result.text:
                     conv.add_assistant_message(result.text)
@@ -505,6 +513,100 @@ def create_textual_app(session, sessions, initial_path: str = ""):
                     self.call_from_thread(self._update_workspace_stats)
 
             self.run_worker(_do_add(), thread=True)
+
+        def _run_full_add_in_background(self, paths: List[str]) -> None:
+            """Stage + parse in background so the UI never freezes."""
+            activity = self.query_one("#activity", ActivityIndicator)
+            status = self.query_one(StatusBar)
+            conv = self.query_one("#conversation", ConversationView)
+            activity.start("Staging documents", f"Scanning {len(paths)} path(s)")
+            status.status_text = "Staging"
+
+            async def _do_full_add():
+                try:
+                    def _on_progress(current, total, filename):
+                        self.call_from_thread(
+                            activity.update_verb,
+                            f"Staging ({current}/{total})",
+                            filename,
+                        )
+
+                    result = await self.run_in_thread(
+                        self.harness.add_documents, paths, _on_progress
+                    )
+                    staged_names = result["staged"]
+                    if not staged_names and not result["errors"]:
+                        lines = ["Nothing new to add."]
+                        for note in result["skipped"][:10]:
+                            lines.append(f"  ! {note}")
+                        self.call_from_thread(
+                            conv.add_system_message, "\n".join(lines)
+                        )
+                        return
+                    lines = [
+                        f"Staged {len(staged_names)} document(s), "
+                        f"{len(result['skipped'])} skipped"
+                    ]
+                    for name in staged_names[:10]:
+                        lines.append(f"  + {name}")
+                    for note in (result["skipped"] + result["errors"])[:10]:
+                        lines.append(f"  ! {note}")
+                    self.call_from_thread(
+                        conv.add_system_message, "\n".join(lines)
+                    )
+                    if not staged_names:
+                        return
+                    self.call_from_thread(
+                        activity.update_verb, "Parsing documents",
+                        f"{len(staged_names)} file(s)"
+                    )
+                    self.call_from_thread(
+                        setattr, status, "status_text", "Parsing"
+                    )
+                    world = await self.run_in_thread(self.harness.ensure_world)
+                    added_pages = 0
+                    for doc_id, profile in world.profiles.items():
+                        if profile.filename in staged_names:
+                            added_pages += profile.page_count
+                    self.call_from_thread(
+                        conv.add_system_message,
+                        f"Ready — {len(staged_names)} document(s), "
+                        f"{added_pages} pages parsed.",
+                    )
+                except Exception as exc:
+                    self.call_from_thread(
+                        conv.add_system_message,
+                        f"Add error: {type(exc).__name__}: {str(exc)[:200]}",
+                    )
+                finally:
+                    activity.stop()
+                    status.status_text = "Ready"
+                    self.call_from_thread(self._update_workspace_stats)
+
+            self.run_worker(_do_full_add(), thread=True)
+
+        def on_paste(self, event: Paste) -> None:
+            """Detect file/dir paths from drag-and-drop and route to /add."""
+            text = event.text.strip().strip('"').strip("'").strip()
+            if not text:
+                return
+            lines = text.splitlines()
+            paths = []
+            for raw in lines:
+                cleaned = raw.strip().strip('"').strip("'").strip()
+                if cleaned and Path(cleaned).exists():
+                    paths.append(cleaned)
+            if not paths:
+                return
+            event.prevent_default()
+            prompt_widget = self.query_one("#prompt", HarnessInput)
+            prompt_widget.value = ""
+            conv = self.query_one("#conversation", ConversationView)
+            label = "; ".join(Path(p).name for p in paths[:5])
+            if len(paths) > 5:
+                label += f" (+{len(paths) - 5} more)"
+            conv.add_user_message(f"/add {label}")
+            self._run_full_add_in_background(paths)
 
         async def action_quit_protected(self) -> None:
             self.checkpoint()

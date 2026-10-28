@@ -119,49 +119,61 @@ class HarnessService:
         self._qa_tool_calls: int = 0
 
     # -- workspace ------------------------------------------------------
-    def add_documents(self, paths: List[str]) -> Dict[str, Any]:
-        """Stage files/dirs into the workspace (copies; originals untouched)."""
+    def add_documents(
+        self, paths: List[str], on_progress=None
+    ) -> Dict[str, Any]:
+        """Stage files/dirs into the workspace (copies; originals untouched).
+
+        *on_progress*: optional ``(current, total, filename)`` callback for
+        live UI feedback while staging files.
+        """
         staged, skipped, errors = [], [], []
+        all_files: List[Path] = []
         for raw in paths:
             path = Path(raw).expanduser()
             if not path.exists():
                 errors.append(f"not found: {raw}")
                 continue
-            files = (
-                [path]
-                if path.is_file()
-                else sorted(p for p in path.rglob("*") if p.is_file())
-            )
-            for source in files:
-                if source.suffix.lower() not in SUPPORTED_EXTS:
-                    skipped.append(f"{source.name} (unsupported type)")
-                    continue
+            if path.is_file():
+                all_files.append(path)
+            else:
+                all_files.extend(sorted(p for p in path.rglob("*") if p.is_file()))
+        total = len(all_files)
+        for idx, source in enumerate(all_files):
+            if on_progress is not None:
                 try:
-                    digest = fingerprint_file(source)
-                except OSError as exc:
-                    errors.append(f"{source.name}: {exc}")
-                    continue
-                if any(d.get("sha256") == digest for d in self.session["documents"]):
-                    skipped.append(f"{source.name} (duplicate)")
-                    continue
-                target = self.workspace_dir / source.name
-                counter = 1
-                while target.exists():
-                    counter += 1
-                    target = (
-                        self.workspace_dir / f"{source.stem}_{counter}{source.suffix}"
-                    )
-                shutil.copy(source, target)
-                self.session["documents"].append(
-                    {
-                        "filename": source.name,
-                        "staged_as": target.name,
-                        "source": str(source),
-                        "sha256": digest,
-                        "bytes": target.stat().st_size,
-                    }
+                    on_progress(idx + 1, total, source.name)
+                except Exception:
+                    pass
+            if source.suffix.lower() not in SUPPORTED_EXTS:
+                skipped.append(f"{source.name} (unsupported type)")
+                continue
+            try:
+                digest = fingerprint_file(source)
+            except OSError as exc:
+                errors.append(f"{source.name}: {exc}")
+                continue
+            if any(d.get("sha256") == digest for d in self.session["documents"]):
+                skipped.append(f"{source.name} (duplicate)")
+                continue
+            target = self.workspace_dir / source.name
+            counter = 1
+            while target.exists():
+                counter += 1
+                target = (
+                    self.workspace_dir / f"{source.stem}_{counter}{source.suffix}"
                 )
-                staged.append(source.name)
+            shutil.copy(source, target)
+            self.session["documents"].append(
+                {
+                    "filename": source.name,
+                    "staged_as": target.name,
+                    "source": str(source),
+                    "sha256": digest,
+                    "bytes": target.stat().st_size,
+                }
+            )
+            staged.append(source.name)
         self._world = None  # rebuild lazily
         return {
             "staged": staged,
