@@ -1,0 +1,40 @@
+[project]
+name = "kynex-harness"
+version = "0.2.0"
+description = "KYNEX — Knowledge Yield Nexus for Extraction"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+dependencies = [
+    "pydantic>=2.10",
+    "openpyxl>=3.1.5",
+    "textual>=8.0",
+    "rich>=13.0",
+    "platformdirs>=4.0",
+    "python-dotenv>=1.0",
+]
+
+[project.scripts]
+kynex = "autonomous_document_harness.tui.app:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["autonomous_document_harness*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+# The harness is vendored as it was measured, so the strict rule sets would
+# fail on code that is not ours.  E4/E7/E9 catch real problems (undefined
+# names, syntax errors); the unused-name rules are relaxed for the vendored
+# tree only -- new code is held to the full standard.
+select = ["E4", "E7", "E9", "F"]
+
+[tool.ruff.lint.per-file-ignores]
+"autonomous_document_harness/**" = ["F401", "F811", "F841"]
+"tests/**" = ["F401", "F811", "F841", "E741"]

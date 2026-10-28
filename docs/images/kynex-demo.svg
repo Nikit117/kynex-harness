@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 660" width="1200" height="660" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+  <defs>
+    <linearGradient id="bar" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+  </defs>
+
+  <!-- window -->
+  <rect width="1200" height="660" fill="#020617"/>
+  <rect x="0" y="0" width="1200" height="34" fill="#0f172a"/>
+  <circle cx="22" cy="17" r="6" fill="#ef4444"/>
+  <circle cx="44" cy="17" r="6" fill="#f59e0b"/>
+  <circle cx="66" cy="17" r="6" fill="#22c55e"/>
+  <text x="600" y="22" fill="#64748b" font-size="13" text-anchor="middle">kynex-harness — python -m autonomous_document_harness.tui</text>
+
+  <!-- left rail -->
+  <rect x="0" y="34" width="250" height="626" fill="url(#bar)"/>
+  <text x="20" y="66" fill="#38bdf8" font-size="13" font-weight="bold">KYNEX</text>
+  <text x="20" y="86" fill="#475569" font-size="11">Knowledge Yield Nexus</text>
+  <text x="20" y="124" fill="#64748b" font-size="12">/add report.pdf</text>
+  <text x="20" y="152" fill="#64748b" font-size="12">/docs</text>
+  <text x="20" y="180" fill="#64748b" font-size="12">/ask ...</text>
+  <text x="20" y="208" fill="#64748b" font-size="12">/help</text>
+  <rect x="14" y="230" width="222" height="120" rx="8" fill="#0b1220" stroke="#1e293b"/>
+  <text x="28" y="252" fill="#475569" font-size="11">DOCUMENTS</text>
+  <text x="28" y="276" fill="#e2e8f0" font-size="12">annual-report.pdf</text>
+  <text x="28" y="296" fill="#64748b" font-size="11">32 pages · staged</text>
+  <text x="28" y="322" fill="#22c55e" font-size="11">● 1 223 rows recovered</text>
+  <text x="20" y="620" fill="#334155" font-size="11">gpt-5.4 · azure openai</text>
+
+  <!-- conversation -->
+  <text x="282" y="72" fill="#38bdf8" font-size="13">you ›</text>
+  <text x="340" y="72" fill="#e2e8f0" font-size="13">Extract every line item with description, quantity and amount.</text>
+
+  <text x="282" y="112" fill="#7c3aed" font-size="13">kynex ›</text>
+  <text x="340" y="112" fill="#94a3b8" font-size="13">read_page(4) · find_tables(4) · extract_table(4) · read_page(5) …</text>
+  <text x="340" y="134" fill="#64748b" font-size="12">the table spans pages 4–19; 41 rows per page</text>
+
+  <text x="282" y="176" fill="#38bdf8" font-size="13">you ›</text>
+  <text x="340" y="176" fill="#e2e8f0" font-size="13">and the totals?</text>
+
+  <text x="282" y="216" fill="#7c3aed" font-size="13">kynex ›</text>
+  <text x="340" y="216" fill="#e2e8f0" font-size="13">819 line items · total 1 772 661.97</text>
+  <text x="340" y="238" fill="#22c55e" font-size="12">✓ every value traced to a page and a region</text>
+
+  <!-- result table -->
+  <rect x="282" y="266" width="886" height="250" rx="10" fill="#0b1220" stroke="#1e293b"/>
+  <text x="302" y="294" fill="#64748b" font-size="12">line_items  (819)</text>
+  <text x="302" y="322" fill="#475569" font-size="12">item_number   description                                            quantity   amount</text>
+  <line x1="302" y1="332" x2="1148" y2="332" stroke="#1e293b"/>
+  <text x="302" y="356" fill="#e2e8f0" font-size="12">2000         Base Year — Technical Support Services (Labor)     21 640     —</text>
+  <text x="302" y="380" fill="#e2e8f0" font-size="12">2001         Funding in support of CLIN 2000                 1          —</text>
+  <text x="302" y="404" fill="#e2e8f0" font-size="12">8000         Option Year IV — NOSSA Analytical Support (ODC)     1          NSP</text>
+  <text x="302" y="428" fill="#e2e8f0" font-size="12">8100         Option Year IV — NOSSA Analytical Support (CDRL)    1          NSP</text>
+  <text x="302" y="452" fill="#e2e8f0" font-size="12">…             815 more rows</text>
+  <text x="302" y="490" fill="#38bdf8" font-size="12">819 rows · 0 fabricated · every cell sourced</text>
+
+  <!-- benchmark strip -->
+  <rect x="282" y="536" width="886" height="90" rx="10" fill="#0b1220" stroke="#1e293b"/>
+  <text x="302" y="564" fill="#64748b" font-size="12">EXTRACTBENCH · 370 documents · unmodified official scorer</text>
+  <text x="302" y="600" fill="#38bdf8" font-size="30" font-weight="bold">92.65</text>
+  <text x="420" y="600" fill="#64748b" font-size="14">unified value F1</text>
+  <text x="600" y="600" fill="#22c55e" font-size="16" font-weight="bold">12th of 50 by score</text>
+  <text x="800" y="600" fill="#64748b" font-size="13">14.17 ¢ / page</text>
+  <text x="1000" y="600" fill="#64748b" font-size="13">1 doc &lt; 0.50</text>
+</svg>
