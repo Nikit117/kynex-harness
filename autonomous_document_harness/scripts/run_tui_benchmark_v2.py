@@ -40,6 +40,8 @@ RESULTS_DIR = HARNESS / "benchmark_results" / "tui_bench"
 
 sys.path.insert(0, str(ROOT))
 
+from autonomous_document_harness.deep.usage import document_usage  # noqa: E402
+
 
 def git_hash() -> str:
     try:
@@ -1521,32 +1523,11 @@ def _apply_structured_arrays(
     return stats
 
 
-def _document_usage(bulk_stats: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-    """Token usage of one document, plus the cost estimate when prices are set.
-
-    The agent loop and the JSON converter run on the document's own thread, so
-    the thread-local counter is exact for them. The bulk enumerator runs its own
-    worker pool and reports its usage per window, which is added here. The
-    ExtractBench leaderboard reports cost per page, so the usage has to be
-    persisted with the run.
-    """
+def _document_usage() -> Dict[str, Any]:
+    """Document-scoped model and DI usage, including child workers."""
     from autonomous_document_harness.deep import usage as U
 
-    snap = U.thread_snapshot()
-    prompt = int(snap.get("prompt_tokens") or 0)
-    completion = int(snap.get("completion_tokens") or 0)
-    calls = int(snap.get("calls") or 0)
-    for field_stats in ((bulk_stats or {}).get("fields") or {}).values():
-        tokens = field_stats.get("tokens") or {}
-        prompt += int(tokens.get("prompt_tokens") or 0)
-        completion += int(tokens.get("completion_tokens") or 0)
-        calls += int(tokens.get("calls") or 0)
-    out = {
-        "prompt_tokens": prompt,
-        "completion_tokens": completion,
-        "total_tokens": prompt + completion,
-        "calls": calls,
-    }
+    out = U.document_snapshot()
     cost = U.estimate_cost(out)
     if cost:
         out["cost"] = cost
@@ -1680,6 +1661,7 @@ def normalize_redaction_markers(prediction: dict) -> Dict[str, Any]:
     return _clear_redaction_markers(prediction)
 
 
+@document_usage()
 def run_one_tui(
     item_id: str,
     source_path: str,
@@ -1790,7 +1772,7 @@ def run_one_tui(
         "pruned_non_records": prune_stats,
         "redaction_markers": marker_stats,
         "structured_arrays": structured_stats,
-        "usage": _document_usage(bulk_stats),
+        "usage": _document_usage(),
     }
 
     # Save raw answer

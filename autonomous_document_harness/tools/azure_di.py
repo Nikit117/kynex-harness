@@ -330,12 +330,28 @@ class AzureDIClient:
         try:
             from azure.ai.documentintelligence import DocumentIntelligenceClient
             from azure.core.credentials import AzureKeyCredential
+            from azure.core.pipeline.policies import SansIOHTTPPolicy
         except ImportError as exc:
             raise RuntimeError(
                 "azure-ai-documentintelligence is not installed"
             ) from exc
         pages_arg = ",".join(str(p) for p in sorted(set(pages)))
-        client = DocumentIntelligenceClient(self.endpoint, AzureKeyCredential(self.key))
+        from ..deep.usage import record_di_request
+
+        page_count = len(set(pages))
+
+        class UsagePolicy(SansIOHTTPPolicy):
+            def on_request(self, request):
+                if request.http_request.method == "POST":
+                    record_di_request(page_count)
+
+            def on_response(self, request, response):
+                if request.http_request.method == "POST" and response.http_response.status_code == 202:
+                    record_di_request(page_count, accepted=True)
+
+        client = DocumentIntelligenceClient(
+            self.endpoint, AzureKeyCredential(self.key), per_retry_policies=[UsagePolicy()]
+        )
         with open(pdf_path, "rb") as fh:
             poller = client.begin_analyze_document(
                 "prebuilt-layout", body=fh, pages=pages_arg

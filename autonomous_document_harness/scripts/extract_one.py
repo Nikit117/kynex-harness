@@ -35,13 +35,26 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--source", required=True, help="path to the document (PDF, ...)")
     ap.add_argument("--schema", required=True, help="path to the JSON schema")
+    ap.add_argument("--out", default="", help="write the extraction here (default: stdout)")
     ap.add_argument(
-        "--out", default="", help="write the extraction here (default: stdout)"
+        "--usage-out", default="", help="write model and DI usage to a separate JSON file"
     )
     args = ap.parse_args()
 
     sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2]))
 
+    from autonomous_document_harness.deep.usage import document_usage
+    from autonomous_document_harness.scripts.run_tui_benchmark_v2 import _document_usage
+
+    with document_usage():
+        try:
+            return _extract(args)
+        finally:
+            if len(args.usage_out) > 0:
+                pathlib.Path(args.usage_out).write_text(json.dumps(_document_usage(), indent=2))
+
+
+def _extract(args) -> int:
     from autonomous_document_harness.deep.model import ensure_azure_env
     from autonomous_document_harness.scripts.run_tui_benchmark_v2 import (
         _apply_structured_arrays,
