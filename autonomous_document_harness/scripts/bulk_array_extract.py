@@ -39,6 +39,7 @@ import re
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from contextvars import copy_context
 from pathlib import Path
 from typing import Any, Optional
 
@@ -763,7 +764,7 @@ def probe_array_scale(
         outs = [_one(p) for p in picks]
     else:
         with ThreadPoolExecutor(max_workers=workers) as pool:
-            outs = [f.result() for f in [pool.submit(_one, p) for p in picks]]
+            outs = [f.result() for f in [pool.submit(copy_context().run, _one, p) for p in picks]]
 
     records = 0
     failed = 0
@@ -892,7 +893,7 @@ def _run_windows(
         done = 0
         with ThreadPoolExecutor(max_workers=workers) as pool:
             futures = {
-                pool.submit(_process, i, s, e): i for i, (s, e) in enumerate(windows)
+                pool.submit(copy_context().run, _process, i, s, e): i for i, (s, e) in enumerate(windows)
             }
             for fut in as_completed(futures):
                 info = fut.result()
