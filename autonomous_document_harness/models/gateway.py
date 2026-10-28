@@ -330,11 +330,14 @@ class ModelGateway:
     def _finish_openai_response(
         self, body: Dict[str, Any], started: float
     ) -> ModelResponse:
+        from ..deep.usage import record_usage
+
+        usage = body.get("usage", {})
+        record_usage(usage)
         try:
             text = body["choices"][0]["message"]["content"]
         except (KeyError, IndexError, TypeError):
             raise ModelUnavailable(f"malformed model response: {str(body)[:200]}")
-        usage = body.get("usage", {})
         return ModelResponse(
             text=text,
             backend=self.backend,

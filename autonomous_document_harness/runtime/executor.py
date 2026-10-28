@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
+from contextvars import copy_context
 from typing import List, Tuple
 
 from ..tools.computer import DocumentComputer
@@ -26,7 +27,7 @@ class ToolExecutor:
         ) as pool:
             futures = {
                 pool.submit(
-                    self.computer.registry.call, action.tool, **action.args
+                    copy_context().run, self.computer.registry.call, action.tool, **action.args
                 ): action
                 for action in actions
             }

@@ -1,21 +1,11 @@
-"""Token-usage accounting for benchmark runs.
-
-The ExtractBench leaderboard reports cost per page, which needs the token
-usage of every model call. The harness counts tokens on one code path only
-(the agent loop) and the bulk page-wise extractor counts none at all, so the
-usage is collected here instead: a single process-wide, lock-protected
-counter that every model response is added to.
-
-The counter is deliberately process-wide rather than per-document: benchmark
-documents run concurrently in worker threads, so a per-document delta would
-interleave calls from different documents. Per-document latency is already
-recorded exactly (`run_metrics.json -> elapsed_seconds`); the total token
-usage is what the cost-per-page figure needs.
-"""
+"""Model and DI usage, with document scopes shared by child workers."""
 
 from __future__ import annotations
 
 import threading
+from collections.abc import Iterator
+from contextlib import contextmanager
+from contextvars import ContextVar
 from typing import Any, Optional
 
 
@@ -27,12 +17,29 @@ class UsageCounter:
         self.prompt_tokens = 0
         self.completion_tokens = 0
         self.calls = 0
+        self.cached_prompt_tokens = 0
+        self.di_requests = 0
+        self.di_pages = 0
+        self.di_requests_accepted = 0
+        self.di_pages_accepted = 0
 
-    def add(self, prompt_tokens: int, completion_tokens: int) -> None:
+    def add(
+        self, prompt_tokens: int, completion_tokens: int, cached_prompt_tokens: int = 0
+    ) -> None:
         with self._lock:
             self.prompt_tokens += int(prompt_tokens or 0)
             self.completion_tokens += int(completion_tokens or 0)
             self.calls += 1
+            self.cached_prompt_tokens += cached_prompt_tokens
+
+    def add_di(self, pages: int, accepted: bool) -> None:
+        with self._lock:
+            if accepted:
+                self.di_requests_accepted += 1
+                self.di_pages_accepted += pages
+            else:
+                self.di_requests += 1
+                self.di_pages += pages
 
     def snapshot(self) -> dict:
         with self._lock:
@@ -41,6 +48,11 @@ class UsageCounter:
                 "completion_tokens": self.completion_tokens,
                 "total_tokens": self.prompt_tokens + self.completion_tokens,
                 "calls": self.calls,
+                "cached_prompt_tokens": self.cached_prompt_tokens,
+                "di_requests": self.di_requests,
+                "di_pages": self.di_pages,
+                "di_requests_accepted": self.di_requests_accepted,
+                "di_pages_accepted": self.di_pages_accepted,
             }
 
     def reset(self) -> None:
@@ -48,16 +60,50 @@ class UsageCounter:
             self.prompt_tokens = 0
             self.completion_tokens = 0
             self.calls = 0
+            self.cached_prompt_tokens = 0
+            self.di_requests = 0
+            self.di_pages = 0
+            self.di_requests_accepted = 0
+            self.di_pages_accepted = 0
 
 
 COUNTER = UsageCounter()
 
-# Per-thread counters: the agent loop and the JSON converter run on the
-# runner's worker thread, so their usage belongs to exactly one document,
-# while the bulk page-wise extractor runs its own worker pool and reports its
-# usage per window. A process-wide delta cannot separate concurrent
-# documents, but a thread-local one can.
+# Thread snapshots support per-window deltas; document scopes include all
+# workers, including probes whose records do not reach the final prediction.
 _LOCAL = threading.local()
+_DOCUMENT: ContextVar[UsageCounter | None] = ContextVar("document_usage", default=None)
+
+
+@contextmanager
+def document_usage() -> Iterator[UsageCounter]:
+    counter = UsageCounter()
+    token = _DOCUMENT.set(counter)
+    try:
+        yield counter
+    finally:
+        _DOCUMENT.reset(token)
+
+
+def document_snapshot() -> dict:
+    counter = _DOCUMENT.get()
+    if counter is None:
+        raise RuntimeError("No document usage scope")
+    return counter.snapshot()
+
+
+def _counters() -> Iterator[UsageCounter]:
+    yield COUNTER
+    yield _local_counter()
+    document = _DOCUMENT.get()
+    if document is not None:
+        yield document
+
+
+def record_di_request(pages: int, *, accepted: bool = False) -> None:
+    """Track analysis POST attempts and acceptances; exclude polls/cache hits."""
+    for counter in _counters():
+        counter.add_di(pages, accepted)
 
 
 def _local_counter() -> UsageCounter:
@@ -103,10 +149,24 @@ def record_response(response: Any) -> None:
     if usage is None:
         llm_output = getattr(response, "llm_output", None) or {}
         usage = llm_output.get("token_usage") if isinstance(llm_output, dict) else None
+    record_usage(usage)
+
+
+def record_usage(usage: Any) -> None:
+    """Record either LangChain or raw Chat Completions usage exactly once."""
     prompt, completion = _tokens_from_usage(usage)
-    if prompt or completion:
-        COUNTER.add(prompt, completion)
-        _local_counter().add(prompt, completion)
+    if prompt == 0 and completion == 0:
+        return
+    if isinstance(usage, dict):
+        details = usage.get("input_token_details") or usage.get("prompt_tokens_details") or {}
+    else:
+        details = getattr(usage, "prompt_tokens_details", None) or {}
+    if isinstance(details, dict):
+        cached = int(details.get("cache_read", details.get("cached_tokens", 0)) or 0)
+    else:
+        cached = int(getattr(details, "cached_tokens", 0) or 0)
+    for counter in _counters():
+        counter.add(prompt, completion, cached)
 
 
 def tokens_of(response: Any) -> tuple[int, int]:
@@ -177,7 +237,7 @@ class TrackedChatModel:
 
 
 def estimate_cost(snapshot: dict) -> Optional[dict]:
-    """Cost of a usage snapshot from the configured per-million-token prices.
+    """LLM cost from configured per-million-token prices (DI priced separately).
 
     Prices come from ``ADH_INPUT_COST_PER_MTOK`` / ``ADH_OUTPUT_COST_PER_MTOK``
     (dollars per million tokens). Without them no cost is reported -- a
@@ -196,15 +256,20 @@ def estimate_cost(snapshot: dict) -> Optional[dict]:
 
     p_in = price("ADH_INPUT_COST_PER_MTOK")
     p_out = price("ADH_OUTPUT_COST_PER_MTOK")
-    if p_in is None and p_out is None:
+    p_cached = price("ADH_CACHED_INPUT_COST_PER_MTOK")
+    if p_in is None and p_out is None and p_cached is None:
         return None
     cost = 0.0
     if p_in is not None:
         cost += snapshot.get("prompt_tokens", 0) / 1_000_000 * p_in
+    if p_cached is not None:
+        cached = snapshot.get("cached_prompt_tokens", 0)
+        cost += cached / 1_000_000 * (p_cached - (p_in if p_in is not None else 0.0))
     if p_out is not None:
         cost += snapshot.get("completion_tokens", 0) / 1_000_000 * p_out
     return {
         "cost_usd": round(cost, 6),
         "input_cost_per_mtok": p_in,
         "output_cost_per_mtok": p_out,
+        "cached_input_cost_per_mtok": p_cached,
     }

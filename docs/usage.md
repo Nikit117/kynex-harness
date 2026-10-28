@@ -60,3 +60,17 @@ export ADH_OCR_FALLBACK=1 ADH_BULK_OCR=1 ADH_STRUCTURED_ARRAYS=1
 `deep/usage.py` counts the tokens of every model call. The per-document
 summary is written next to the extraction, and the measured cost of a full
 ExtractBench run is in [benchmarks.md](benchmarks.md).
+
+### Usage accounting
+
+`extract_one.py --usage-out usage.json` writes model token counts (including
+cached input tokens) and DI page/request counts separately from the extraction,
+including when extraction fails. Benchmark `run_metrics.json` uses the same
+document-scoped counters, including probe and enumeration workers.
+
+DI counts distinguish POST attempts from accepted analyses; cache hits and
+result polling add no pages. Failed/uncertain submissions may require billing
+reconciliation. LLM cost estimates use `ADH_INPUT_COST_PER_MTOK`,
+`ADH_OUTPUT_COST_PER_MTOK`, and optionally `ADH_CACHED_INPUT_COST_PER_MTOK`;
+without a cached-input rate, input tokens use the configured input rate.
+DI pages are reported separately for pricing.
