@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="KYNEX">
+  <!-- Option 4: Minimal K spark — like ChatGPT/Claude style clean mark -->
+  <defs>
+    <linearGradient id="g4" x1="20" y1="20" x2="108" y2="108" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#f472b6"/>
+      <stop offset="50%" stop-color="#c084fc"/>
+      <stop offset="100%" stop-color="#60a5fa"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="#0f172a"/>
+  <g transform="translate(64,64)">
+    <!-- Clean bold K with spark/star accent -->
+    <path d="M-24,-34 L-24,34" stroke="url(#g4)" stroke-width="9" stroke-linecap="round"/>
+    <path d="M-24,2 L18,-34" stroke="url(#g4)" stroke-width="9" stroke-linecap="round"/>
+    <path d="M-10,8 L22,34" stroke="url(#g4)" stroke-width="9" stroke-linecap="round"/>
+    <!-- 4-point star spark at the top-right -->
+    <g transform="translate(30,-26)">
+      <path d="M0,-8 L1.5,-2 L8,0 L1.5,2 L0,8 L-1.5,2 L-8,0 L-1.5,-2 Z" fill="#fbbf24"/>
+    </g>
+  </g>
+</svg>
