@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="KYNEX">
+  <!-- Combo 3: Document with bold K inside + spark at folded corner -->
+  <defs>
+    <linearGradient id="gc3" x1="20" y1="20" x2="108" y2="108" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="40%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#c084fc"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="#0f172a"/>
+  <g transform="translate(64,64)">
+    <!-- Document outline -->
+    <path d="M-30,-44 L16,-44 L30,-30 L30,44 L-30,44 Z" fill="none" stroke="url(#gc3)" stroke-width="3" stroke-linejoin="round" opacity="0.5"/>
+    <!-- Folded corner -->
+    <path d="M16,-44 L16,-30 L30,-30" fill="none" stroke="url(#gc3)" stroke-width="3" stroke-linejoin="round" opacity="0.5"/>
+    <!-- Bold K centered inside -->
+    <path d="M-16,-24 L-16,24" stroke="url(#gc3)" stroke-width="8" stroke-linecap="round"/>
+    <path d="M-16,2 L14,-24" stroke="url(#gc3)" stroke-width="8" stroke-linecap="round"/>
+    <path d="M-4,7 L18,24" stroke="url(#gc3)" stroke-width="8" stroke-linecap="round"/>
+    <!-- Spark at folded corner -->
+    <g transform="translate(26,-36)">
+      <path d="M0,-8 L1.5,-2.5 L8,0 L1.5,2.5 L0,8 L-1.5,2.5 L-8,0 L-1.5,-2.5 Z" fill="#fbbf24"/>
+    </g>
+  </g>
+</svg>
