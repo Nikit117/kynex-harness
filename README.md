@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/images/kynex-logo.svg" alt="KYNEX" width="96" height="96">
+  <img src="docs/images/logo-combo-3.svg" alt="KYNEX" width="96" height="96">
 </p>
 
 <h1 align="center">KYNEX</h1>
