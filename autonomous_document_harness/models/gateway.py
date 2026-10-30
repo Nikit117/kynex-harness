@@ -279,10 +279,13 @@ class ModelGateway:
         if request.response_format == "json_object":
             payload["response_format"] = {"type": "json_object"}
         started = time.perf_counter()
-        body = self._post_chat(
-            url, model.api_key, payload, bearer_auth=self.backend == "openai"
-        )
-        return self._finish_openai_response(body, started)
+        from ..deep.usage import model_request
+
+        with model_request():
+            body = self._post_chat(
+                url, model.api_key, payload, bearer_auth=self.backend == "openai"
+            )
+            return self._finish_openai_response(body, started)
 
     @staticmethod
     def _post_chat(
