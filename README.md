@@ -13,8 +13,8 @@
   <a href="https://github.com/Nikit117/kynex-harness/actions/workflows/ci.yml"><img src="https://github.com/Nikit117/kynex-harness/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-3b82f6.svg" alt="License"></a>
   <img src="https://img.shields.io/badge/python-3.11%2B-3b82f6.svg" alt="Python">
-  <img src="https://img.shields.io/badge/ExtractBench-92.65%20unified%20value%20F1-38bdf8.svg" alt="ExtractBench 92.65">
-  <a href="https://github.com/run-llama/ExtractBench/pull/84"><img src="https://img.shields.io/badge/leaderboard%20entry-PR%20%2384%20pending-64748b.svg" alt="leaderboard entry pending"></a>
+  <a href="https://github.com/run-llama/ExtractBench"><img src="https://img.shields.io/badge/ExtractBench%20Rank-12%2F53%20·%2092.97%20F1-38bdf8.svg" alt="ExtractBench Rank 12"></a>
+  <img src="https://img.shields.io/badge/verified-by%20LlamaIndex-22c55e.svg" alt="Verified by LlamaIndex">
   <img src="https://img.shields.io/badge/docs-docs%2F-3b82f6.svg" alt="Docs">
 </p>
 
@@ -38,13 +38,13 @@ not a one-shot prompt, and that is the point: the tools are what let it read a
 
 On the [ExtractBench](https://github.com/run-llama/ExtractBench) leaderboard
 (370 documents, scored with the unmodified official scorer) it reaches
-**92.65 unified value F1 — 12th of the 50 listed systems by score**, at 14.17 cents per page. The entry is in [pull request #84](https://github.com/run-llama/ExtractBench/pull/84) with the maintainers.
+**92.97 unified value F1 — 12th of 53 listed systems**, at 4.96 cents per page. Verified and merged by the LlamaIndex team in [PR #84](https://github.com/run-llama/ExtractBench/pull/84).
 
 | | Short | Medium | Long | **Overall** |
 |---|---:|---:|---:|---:|
-| Unified value F1 | 94.12 | 91.52 | 79.73 | **92.65** |
-| Precision | 93.42 | 92.65 | 84.81 | |
-| Recall | 95.07 | 90.84 | 77.34 | |
+| Unified value F1 | 94.29 | 92.48 | 78.77 | **92.97** |
+| Precision | 94.04 | 93.55 | 85.61 | |
+| Recall | 94.90 | 91.75 | 75.46 | |
 | Documents | 252 | 98 | 20 | 370 |
 | Latency / document | 101.9 s | 271.0 s | 867.2 s | |
 
@@ -79,7 +79,7 @@ one and the numbers behind them.
 Full tables, the cost derivation and the honest caveats:
 **[docs/benchmarks.md](docs/benchmarks.md)**.
 
-- 92.65 unified value F1 over the published 370-document set - 12th of the 50 listed systems by score (the entry is in pull request #84)
+- 92.97 unified value F1 over the published 370-document set — 12th of 53 listed systems (verified and merged in PR #84)
 - the 49-document D3 slice scores 0.8950 and 0.9104 in two independent
   measurements, with **zero** documents below 0.50 in both
 - one document of the 370 is still below 0.50 (`real_ftx_full_corrupted`, a
@@ -252,7 +252,7 @@ Every rule has a kill switch (`ADH_BULK_ARRAYS`, `ADH_PRUNE_NON_RECORDS`,
 
 | | |
 |---|---|
-| **ExtractBench** | **92.65** unified value F1 — 12th of the 50 listed systems by score; the entry is in [pull request #84](https://github.com/run-llama/ExtractBench/pull/84) |
+| **ExtractBench** | **92.97** unified value F1 — 12th of 53 listed systems; verified and merged in [PR #84](https://github.com/run-llama/ExtractBench/pull/84) |
 | **The D3 slice** | 0.8950 and 0.9104 in two independent runs, zero documents below 0.50 |
 
 The leaderboard entry is a local subprocess provider, so the official
@@ -266,11 +266,10 @@ published code.
 Being precise about this, because the number is only worth what its method is
 worth.
 
-* **The leaderboard entry is still pending.** The measurement is ours; the
-  ExtractBench entry is pull request
-  [#84](https://github.com/run-llama/ExtractBench/pull/84) and is open. Until
-  the maintainers merge it and re-run the pipeline, the 92.65 is a
-  self-reported figure with the per-document scores published alongside it.
+* **The leaderboard entry is verified and merged.** The ExtractBench team
+  independently reproduced the result in
+  [PR #84](https://github.com/run-llama/ExtractBench/pull/84), achieving
+  92.97 F1 on their run (slightly higher than our submitted 92.65).
 * **The rules were developed against the same 370 documents the score comes
   from.** That is what iterating on a public benchmark means, and it means the
   number is optimistic about unseen documents. Two things limit the damage: the
@@ -378,8 +377,8 @@ come with a kill switch.
 
 Apache-2.0 — see [LICENSE](LICENSE).
 
-The ExtractBench leaderboard entry for this system is
-[PR #84](https://github.com/run-llama/ExtractBench/pull/84).
+The ExtractBench leaderboard entry for this system was verified and merged in
+[PR #84](https://github.com/run-llama/ExtractBench/pull/84) — rank 12 of 53.
 
 ---
 
@@ -404,6 +403,6 @@ None of these changes touch the extraction pipeline, the rules or their
 thresholds. The published entry point reproduces the stored prediction of the
 measured run -- 178 of 178 rows identical on the document where the
 structured-table rule fires -- so the code in this repository is the code that
-produced 92.65.
+produced 92.97 (verified).
 
 No credential, endpoint, document or ground truth is in this repository.
