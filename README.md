@@ -30,6 +30,12 @@
 
 ---
 
+<p align="center">
+  <img src="docs/images/kynex-demo.gif" alt="KYNEX demo — extracting structured data from an insurance vehicle valuation report" width="800">
+</p>
+
+---
+
 KYNEX is an **agentic document-extraction harness**. It stages a document, lets
 the model call tools against it — page text, tables, layout analysis, rendered
 pages — and returns JSON that validates against the requested schema. It is
