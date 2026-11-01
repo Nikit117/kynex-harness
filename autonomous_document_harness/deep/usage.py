@@ -18,6 +18,8 @@ class UsageCounter:
         self.completion_tokens = 0
         self.calls = 0
         self.cached_prompt_tokens = 0
+        self.unpriced_model_calls = 0
+        self.pending_model_calls = 0
         self.di_requests = 0
         self.di_pages = 0
         self.di_requests_accepted = 0
@@ -31,6 +33,14 @@ class UsageCounter:
             self.completion_tokens += int(completion_tokens or 0)
             self.calls += 1
             self.cached_prompt_tokens += cached_prompt_tokens
+
+    def add_pending(self, delta: int) -> None:
+        with self._lock:
+            self.pending_model_calls += delta
+
+    def add_unpriced(self) -> None:
+        with self._lock:
+            self.unpriced_model_calls += 1
 
     def add_di(self, pages: int, accepted: bool) -> None:
         with self._lock:
@@ -49,6 +59,10 @@ class UsageCounter:
                 "total_tokens": self.prompt_tokens + self.completion_tokens,
                 "calls": self.calls,
                 "cached_prompt_tokens": self.cached_prompt_tokens,
+                "unpriced_model_calls": self.unpriced_model_calls,
+                "pending_model_calls": self.pending_model_calls,
+                "model_usage_complete": self.unpriced_model_calls == 0
+                and self.pending_model_calls == 0,
                 "di_requests": self.di_requests,
                 "di_pages": self.di_pages,
                 "di_requests_accepted": self.di_requests_accepted,
@@ -61,6 +75,8 @@ class UsageCounter:
             self.completion_tokens = 0
             self.calls = 0
             self.cached_prompt_tokens = 0
+            self.unpriced_model_calls = 0
+            self.pending_model_calls = 0
             self.di_requests = 0
             self.di_pages = 0
             self.di_requests_accepted = 0
@@ -73,6 +89,7 @@ COUNTER = UsageCounter()
 # workers, including probes whose records do not reach the final prediction.
 _LOCAL = threading.local()
 _DOCUMENT: ContextVar[UsageCounter | None] = ContextVar("document_usage", default=None)
+_REQUEST_RECORDED: ContextVar[list[bool] | None] = ContextVar("request_recorded", default=None)
 
 
 @contextmanager
@@ -98,6 +115,30 @@ def _counters() -> Iterator[UsageCounter]:
     document = _DOCUMENT.get()
     if document is not None:
         yield document
+
+
+def record_unpriced_call() -> None:
+    """A failed or unmetered invocation may still incur a provider charge."""
+    for counter in _counters():
+        counter.add_unpriced()
+
+
+@contextmanager
+def model_request() -> Iterator[None]:
+    """Keep exported cost incomplete until an invocation's usage is available."""
+    counters = tuple(_counters())
+    for counter in counters:
+        counter.add_pending(1)
+    recorded = [False]
+    token = _REQUEST_RECORDED.set(recorded)
+    try:
+        yield
+    finally:
+        for counter in counters:
+            if not recorded[0]:
+                counter.add_unpriced()
+            counter.add_pending(-1)
+        _REQUEST_RECORDED.reset(token)
 
 
 def record_di_request(pages: int, *, accepted: bool = False) -> None:
@@ -144,6 +185,7 @@ def _tokens_from_usage(usage: Any) -> tuple[int, int]:
 def record_response(response: Any) -> None:
     """Add the token usage of one model response to the counters."""
     if response is None:
+        record_usage(None)
         return
     usage = getattr(response, "usage_metadata", None)
     if usage is None:
@@ -154,6 +196,21 @@ def record_response(response: Any) -> None:
 
 def record_usage(usage: Any) -> None:
     """Record either LangChain or raw Chat Completions usage exactly once."""
+    recorded = _REQUEST_RECORDED.get()
+    if recorded is not None:
+        recorded[0] = True
+    input_names = ("input_tokens", "prompt_tokens")
+    output_names = ("output_tokens", "completion_tokens")
+    if isinstance(usage, dict):
+        complete = any(usage.get(k) is not None for k in input_names) and any(
+            usage.get(k) is not None for k in output_names
+        )
+    else:
+        complete = any(getattr(usage, k, None) is not None for k in input_names) and any(
+            getattr(usage, k, None) is not None for k in output_names
+        )
+    if not complete:
+        record_unpriced_call()
     prompt, completion = _tokens_from_usage(usage)
     if prompt == 0 and completion == 0:
         return
@@ -187,21 +244,24 @@ class TrackedRunnable:
         self._runnable = runnable
 
     def invoke(self, *args: Any, **kwargs: Any) -> Any:
-        response = self._runnable.invoke(*args, **kwargs)
-        record_response(response)
+        with model_request():
+            response = self._runnable.invoke(*args, **kwargs)
+            record_response(response)
         return response
 
     async def ainvoke(self, *args: Any, **kwargs: Any) -> Any:
-        response = await self._runnable.ainvoke(*args, **kwargs)
-        record_response(response)
+        with model_request():
+            response = await self._runnable.ainvoke(*args, **kwargs)
+            record_response(response)
         return response
 
     def stream(self, *args: Any, **kwargs: Any) -> Any:
         last = None
-        for chunk in self._runnable.stream(*args, **kwargs):
-            last = chunk
-            yield chunk
-        record_response(last)
+        with model_request():
+            for chunk in self._runnable.stream(*args, **kwargs):
+                last = chunk
+                yield chunk
+            record_response(last)
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self._runnable, name)
@@ -220,13 +280,15 @@ class TrackedChatModel:
         self._model = model
 
     def invoke(self, *args: Any, **kwargs: Any) -> Any:
-        response = self._model.invoke(*args, **kwargs)
-        record_response(response)
+        with model_request():
+            response = self._model.invoke(*args, **kwargs)
+            record_response(response)
         return response
 
     async def ainvoke(self, *args: Any, **kwargs: Any) -> Any:
-        response = await self._model.ainvoke(*args, **kwargs)
-        record_response(response)
+        with model_request():
+            response = await self._model.ainvoke(*args, **kwargs)
+            record_response(response)
         return response
 
     def bind_tools(self, *args: Any, **kwargs: Any) -> Any:
@@ -241,7 +303,8 @@ def estimate_cost(snapshot: dict) -> Optional[dict]:
 
     Prices come from ``ADH_INPUT_COST_PER_MTOK`` / ``ADH_OUTPUT_COST_PER_MTOK``
     (dollars per million tokens). Without them no cost is reported -- a
-    guessed price would be worse than none.
+    guessed price would be worse than none. Failed calls retain a known
+    subtotal, but the total stays unknown when usage or rates are incomplete.
     """
     import os
 
@@ -267,8 +330,16 @@ def estimate_cost(snapshot: dict) -> Optional[dict]:
         cost += cached / 1_000_000 * (p_cached - (p_in if p_in is not None else 0.0))
     if p_out is not None:
         cost += snapshot.get("completion_tokens", 0) / 1_000_000 * p_out
+    complete = (
+        snapshot.get("unpriced_model_calls", 0) == 0
+        and snapshot.get("pending_model_calls", 0) == 0
+        and (p_in is not None or snapshot.get("prompt_tokens", 0) == 0)
+        and (p_out is not None or snapshot.get("completion_tokens", 0) == 0)
+    )
     return {
-        "cost_usd": round(cost, 6),
+        "cost_usd": round(cost, 6) if complete else None,
+        "known_cost_usd": round(cost, 6),
+        "cost_complete": complete,
         "input_cost_per_mtok": p_in,
         "output_cost_per_mtok": p_out,
         "cached_input_cost_per_mtok": p_cached,
