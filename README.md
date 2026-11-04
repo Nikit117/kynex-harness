@@ -28,6 +28,8 @@
   <a href="#contributing">Contributing</a>
 </p>
 
+<p align="center"><sub>If KYNEX is useful to you, a ⭐ helps other people find it.</sub></p>
+
 ---
 
 <p align="center">
