@@ -53,6 +53,7 @@ def build_chat_model(
         return None
     if not deployment:
         return None
+    no_temp = os.environ.get("ADH_MODEL_NO_TEMPERATURE", "").strip() == "1"
     try:
         from langchain_openai import AzureChatOpenAI, ChatOpenAI
 
@@ -61,13 +62,14 @@ def build_chat_model(
             guards["request_timeout"] = request_timeout
         if max_retries is not None:
             guards["max_retries"] = max_retries
+        temp_kwargs: dict[str, Any] = {} if no_temp else {"temperature": temperature}
         if backend == "openai":
             return ChatOpenAI(
                 base_url=base_url,
                 api_key=api_key,
                 model=deployment,
-                temperature=temperature,
                 max_tokens=max_tokens,
+                **temp_kwargs,
                 **guards,
             )
         return AzureChatOpenAI(
@@ -75,8 +77,8 @@ def build_chat_model(
             api_key=api_key,
             api_version=api_version,
             azure_deployment=deployment,
-            temperature=temperature,
             max_tokens=max_tokens,
+            **temp_kwargs,
             **guards,
         )
     except Exception:
