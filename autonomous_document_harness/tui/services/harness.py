@@ -23,6 +23,7 @@ from ...workspace.corpus import Corpus, SUPPORTED_EXTS, fingerprint_file
 from ...workspace.world_model import WorldModel
 from .events import (
     RUN_COMPLETED,
+    RUN_FAILED,
     RUN_STARTED,
     EventBus,
 )
@@ -939,6 +940,7 @@ class HarnessService:
         ]
 
         answer_text = ""
+        model_failed = False
         max_rounds = 30
         round_no = 0
         for round_no in range(max_rounds):
@@ -946,6 +948,7 @@ class HarnessService:
                 response = model_with_tools.invoke(messages)
             except Exception as exc:
                 answer_text = f"Error: {type(exc).__name__}: {str(exc)[:200]}"
+                model_failed = True
                 break
 
             self._qa_model_calls += 1
@@ -1013,27 +1016,31 @@ class HarnessService:
                 answer_text = sanitize_text(str(response.content or ""))
 
         elapsed = time.time() - started
-        steps.append(f"Answered in {elapsed:.1f}s ({round_no + 1} rounds)")
+        steps.append(
+            f"{'Failed' if model_failed else 'Answered'} in {elapsed:.1f}s ({round_no + 1} rounds)"
+        )
         self.bus.post(
-            RUN_COMPLETED,
-            f"Answer ready ({elapsed:.1f}s, {round_no + 1} rounds)",
+            RUN_FAILED if model_failed else RUN_COMPLETED,
+            f"{'Run failed' if model_failed else 'Answer ready'} "
+            f"({elapsed:.1f}s, {round_no + 1} rounds)",
             f"{len(steps) - 2} tool calls",
         )
 
+        answer_count = 0 if model_failed else 1
         self.session["turns"].append(
             {
                 "prompt": prompt[:500],
                 "answer": answer_text[:20000],
-                "answers": 1,
+                "answers": answer_count,
                 "ts": time.time(),
             }
         )
         return {
             "text": answer_text,
             "citations": citations[:20],
-            "answers": 1,
-            "verified": 1,
-            "status": "answered",
+            "answers": answer_count,
+            "verified": answer_count,
+            "status": "failed" if model_failed else "answered",
             "elapsed_seconds": round(elapsed, 1),
             "prompt": prompt,
             "contracts": [],
