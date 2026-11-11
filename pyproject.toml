@@ -1,24 +1,62 @@
 [project]
 name = "kynex-harness"
 version = "0.2.0"
-description = "KYNEX — Knowledge Yield Nexus for Extraction"
+description = "KYNEX — an open-source, tool-using agent that turns PDFs, scans and spreadsheets into schema-valid JSON (#8 of 53 on ExtractBench)"
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "Apache-2.0" }
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [{ name = "Nikit Kashyap" }]
+keywords = [
+    "document-extraction", "document-ai", "pdf", "ocr", "table-extraction",
+    "llm", "agents", "tool-use", "structured-output", "json-schema", "extractbench",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Text Processing",
+]
 dependencies = [
     "pydantic>=2.10",
+    "pymupdf>=1.24",
+    "pdfplumber>=0.11",
+    "pypdfium2>=4.0",
     "openpyxl>=3.1.5",
+    "python-docx>=1.1",
+    "pandas>=2.2",
+    "pillow>=10.0",
+    "pyyaml>=6.0",
+    "deepagents==0.7.23",
+    "langgraph==1.2.11",
+    "langchain-core==1.6.9",
+    "langchain-openai==1.7.0",
     "textual>=8.0",
     "rich>=13.0",
     "platformdirs>=4.0",
     "python-dotenv>=1.0",
 ]
 
+[project.optional-dependencies]
+azure = ["azure-ai-documentintelligence>=1.0"]
+
 [project.scripts]
 kynex = "autonomous_document_harness.tui.app:main"
 
+[project.urls]
+Homepage = "https://github.com/Nikit117/kynex-harness"
+Documentation = "https://github.com/Nikit117/kynex-harness/tree/main/docs"
+Issues = "https://github.com/Nikit117/kynex-harness/issues"
+Leaderboard = "https://github.com/run-llama/ExtractBench"
+
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]

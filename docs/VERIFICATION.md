@@ -11,7 +11,7 @@ same harness code and the unmodified official scorer:
 |---|---:|---:|---:|---:|---:|---:|---|
 | **KYNEX (GPT-6.1 Sol)** | **8/53** | **94.6** | 96.0 | 93.1 | 84.2 | 9.35¢ | [#119](https://github.com/run-llama/ExtractBench/pull/119) |
 | KYNEX (GPT-5.5) | 14/53 | 94.2 | 95.8 | 93.0 | 80.4 | 8.80¢ | [#119](https://github.com/run-llama/ExtractBench/pull/119) |
-| KYNEX (GPT-5.4) | 17/53 | 92.97 | 94.29 | 92.48 | 78.77 | 4.96¢ | [#84](https://github.com/run-llama/ExtractBench/pull/84) |
+| KYNEX (GPT-5.4) | unranked | 92.97 | 94.29 | 92.48 | 78.77 | 4.96¢ | [#84](https://github.com/run-llama/ExtractBench/pull/84) |
 
 | | |
 |---|---|
