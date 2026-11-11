@@ -13,7 +13,7 @@
   <a href="https://github.com/Nikit117/kynex-harness/actions/workflows/ci.yml"><img src="https://github.com/Nikit117/kynex-harness/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-3b82f6.svg" alt="License"></a>
   <img src="https://img.shields.io/badge/python-3.11%2B-3b82f6.svg" alt="Python">
-  <a href="https://github.com/run-llama/ExtractBench"><img src="https://img.shields.io/badge/ExtractBench%20Rank-12%2F53%20·%2092.97%20F1-38bdf8.svg" alt="ExtractBench Rank 12"></a>
+  <a href="https://github.com/run-llama/ExtractBench"><img src="https://img.shields.io/badge/ExtractBench%20Rank-8%2F53%20·%2094.6%20F1-38bdf8.svg" alt="ExtractBench Rank 8"></a>
   <img src="https://img.shields.io/badge/verified-by%20LlamaIndex-22c55e.svg" alt="Verified by LlamaIndex">
   <img src="https://img.shields.io/badge/docs-docs%2F-3b82f6.svg" alt="Docs">
 </p>
@@ -45,16 +45,16 @@ not a one-shot prompt, and that is the point: the tools are what let it read a
 26,725-row schedule or a scanned page that has no text layer at all.
 
 On the [ExtractBench](https://github.com/run-llama/ExtractBench) leaderboard
-(370 documents, scored with the unmodified official scorer) it reaches
-**92.97 unified value F1 — 12th of 53 listed systems**, at 4.96 cents per page. Verified and merged by the LlamaIndex team in [PR #84](https://github.com/run-llama/ExtractBench/pull/84).
+(370 documents, scored with the unmodified official scorer) KYNEX has three
+verified entries:
 
-| | Short | Medium | Long | **Overall** |
-|---|---:|---:|---:|---:|
-| Unified value F1 | 94.29 | 92.48 | 78.77 | **92.97** |
-| Precision | 94.04 | 93.55 | 85.61 | |
-| Recall | 94.90 | 91.75 | 75.46 | |
-| Documents | 252 | 98 | 20 | 370 |
-| Latency / document | 101.9 s | 271.0 s | 867.2 s | |
+| Configuration | Rank | Overall F1 | Short | Medium | Long | Cost/page |
+|---|---:|---:|---:|---:|---:|---:|
+| **KYNEX (GPT-6.1 Sol)** | **8/53** | **94.6** | 96.0 | 93.1 | 84.2 | 9.35¢ |
+| KYNEX (GPT-5.5) | 14/53 | 94.2 | 95.8 | 93.0 | 80.4 | 8.80¢ |
+| KYNEX (GPT-5.4) | 17/53 | 92.97 | 94.29 | 92.48 | 78.77 | 4.96¢ |
+
+All three verified and merged by the LlamaIndex team — GPT-5.4 in [PR #84](https://github.com/run-llama/ExtractBench/pull/84), GPT-5.5 and GPT-6.1 Sol in [PR #119](https://github.com/run-llama/ExtractBench/pull/119).
 
 The grounding metrics are **0.00 by construction**: the harness does not emit
 per-field citation boxes, so `field_citations` is empty — the same situation as
@@ -87,7 +87,9 @@ one and the numbers behind them.
 Full tables, the cost derivation and the honest caveats:
 **[docs/benchmarks.md](docs/benchmarks.md)**.
 
-- 92.97 unified value F1 over the published 370-document set — 12th of 53 listed systems (verified and merged in PR #84)
+- **94.6 unified value F1** with GPT-6.1 Sol — **8th of 53** listed systems (verified and merged in PR #119)
+- 94.2 F1 with GPT-5.5 — 14th of 53 (PR #119)
+- 92.97 F1 with GPT-5.4 — 17th of 53 (PR #84)
 - the 49-document D3 slice scores 0.8950 and 0.9104 in two independent
   measurements, with **zero** documents below 0.50 in both
 - one document of the 370 is still below 0.50 (`real_ftx_full_corrupted`, a
@@ -166,8 +168,9 @@ export ADH_MODEL_API_KEY=sk-...
 export ADH_MODEL_DEPLOYMENT=gpt-5.4
 ```
 
-The published score was measured on Azure with `gpt-5.4`, so a different
-provider or model gives its own number rather than a reproduction. Document
+The published scores were measured on Azure with `gpt-5.4`, `gpt-5.5`, and
+`gpt-6.1-sol`, so a different provider or model gives its own number rather
+than a reproduction. Document
 Intelligence is Azure-only, and the harness runs without it.
 
 Then use it:
@@ -260,7 +263,7 @@ Every rule has a kill switch (`ADH_BULK_ARRAYS`, `ADH_PRUNE_NON_RECORDS`,
 
 | | |
 |---|---|
-| **ExtractBench** | **92.97** unified value F1 — 12th of 53 listed systems; verified and merged in [PR #84](https://github.com/run-llama/ExtractBench/pull/84) |
+| **ExtractBench** | **94.6** unified value F1 — **8th of 53** listed systems; three entries verified and merged in [PR #84](https://github.com/run-llama/ExtractBench/pull/84) and [PR #119](https://github.com/run-llama/ExtractBench/pull/119) |
 | **The D3 slice** | 0.8950 and 0.9104 in two independent runs, zero documents below 0.50 |
 
 The leaderboard entry is a local subprocess provider, so the official
@@ -385,8 +388,8 @@ come with a kill switch.
 
 Apache-2.0 — see [LICENSE](LICENSE).
 
-The ExtractBench leaderboard entry for this system was verified and merged in
-[PR #84](https://github.com/run-llama/ExtractBench/pull/84) — rank 12 of 53.
+The ExtractBench leaderboard entries for this system were verified and merged in
+[PR #84](https://github.com/run-llama/ExtractBench/pull/84) and [PR #119](https://github.com/run-llama/ExtractBench/pull/119) — rank 8 of 53 (GPT-6.1 Sol).
 
 ---
 
@@ -411,6 +414,6 @@ None of these changes touch the extraction pipeline, the rules or their
 thresholds. The published entry point reproduces the stored prediction of the
 measured run -- 178 of 178 rows identical on the document where the
 structured-table rule fires -- so the code in this repository is the code that
-produced 92.97 (verified).
+produced 94.6 / 94.2 / 92.97 (all three verified).
 
 No credential, endpoint, document or ground truth is in this repository.
