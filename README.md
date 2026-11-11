@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/images/logo-combo-3.svg" alt="KYNEX" width="96" height="96">
+  <img src="https://raw.githubusercontent.com/Nikit117/kynex-harness/main/docs/images/logo-combo-3.svg" alt="KYNEX" width="96" height="96">
 </p>
 
 <h1 align="center">KYNEX</h1>
@@ -7,6 +7,12 @@
 <p align="center">
   <strong>Knowledge Yield Nexus for EXtraction</strong><br>
   A local, tool-using agent that reads documents the way a careful analyst does.
+</p>
+
+<p align="center">
+  <strong>Turn PDFs, scans and spreadsheets into schema-valid JSON.</strong><br>
+  Open source, runs on any OpenAI-compatible endpoint, and ranked <strong>#8 of 53</strong> on
+  <a href="https://github.com/run-llama/ExtractBench">ExtractBench</a> — verified by LlamaIndex.
 </p>
 
 <p align="center">
@@ -33,7 +39,7 @@
 ---
 
 <p align="center">
-  <img src="docs/images/kynex-demo.gif" alt="KYNEX demo — extracting structured data from an insurance vehicle valuation report" width="800">
+  <img src="https://raw.githubusercontent.com/Nikit117/kynex-harness/main/docs/images/kynex-demo.gif" alt="KYNEX demo — extracting structured data from an insurance vehicle valuation report" width="800">
 </p>
 
 ---
@@ -52,9 +58,24 @@ verified entries:
 |---|---:|---:|---:|---:|---:|---:|
 | **KYNEX (GPT-6.1 Sol)** | **8/53** | **94.6** | 96.0 | 93.1 | 84.2 | 9.35¢ |
 | KYNEX (GPT-5.5) | 14/53 | 94.2 | 95.8 | 93.0 | 80.4 | 8.80¢ |
-| KYNEX (GPT-5.4) | 17/53 | 92.97 | 94.29 | 92.48 | 78.77 | 4.96¢ |
+| KYNEX (GPT-5.4) | unranked¹ | 92.97 | 94.29 | 92.48 | 78.77 | 4.96¢ |
 
 All three verified and merged by the LlamaIndex team — GPT-5.4 in [PR #84](https://github.com/run-llama/ExtractBench/pull/84), GPT-5.5 and GPT-6.1 Sol in [PR #119](https://github.com/run-llama/ExtractBench/pull/119).
+
+<sub>¹ The GPT-5.4 entry is kept in the leaderboard CSV with `include_in_rankings=false`, so it has no public rank.</sub>
+
+Where that sits on the board, among the coding agents next to it:
+
+| Rank | System | Overall F1 |
+|---:|---|---:|
+| 7 | Claude Code (Sonnet 5.5) | 94.68 |
+| **8** | **KYNEX (GPT-6.1 Sol)** | **94.63** |
+| 9 | Codex (GPT-6 Sol) | 94.57 |
+
+The three are within about 0.1 F1 of each other — inside run-to-run noise — so
+the honest claim is "on par with the leading coding agents", not "ahead of them".
+The difference is that KYNEX is a small, open, schema-first harness you can run
+and change yourself.
 
 The grounding metrics are **0.00 by construction**: the harness does not emit
 per-field citation boxes, so `field_citations` is empty — the same situation as
@@ -89,7 +110,7 @@ Full tables, the cost derivation and the honest caveats:
 
 - **94.6 unified value F1** with GPT-6.1 Sol — **8th of 53** listed systems (verified and merged in PR #119)
 - 94.2 F1 with GPT-5.5 — 14th of 53 (PR #119)
-- 92.97 F1 with GPT-5.4 — 17th of 53 (PR #84)
+- 92.97 F1 with GPT-5.4 — verified, kept out of the public ranking (PR #84)
 - the 49-document D3 slice scores 0.8950 and 0.9104 in two independent
   measurements, with **zero** documents below 0.50 in both
 - one document of the 370 is still below 0.50 (`real_ftx_full_corrupted`, a
@@ -106,6 +127,12 @@ Install KYNEX with one command — works from any directory, just like `claude` 
 
 ```bash
 pip install git+https://github.com/Nikit117/kynex-harness.git
+```
+
+Using Azure Document Intelligence for table rows and the OCR fallback? Install the extra:
+
+```bash
+pip install "kynex-harness[azure] @ git+https://github.com/Nikit117/kynex-harness.git"
 ```
 
 ### pipx
@@ -138,34 +165,39 @@ kynex
 
 ## Quick start
 
-Configure your model provider interactively (credentials are saved to `~/.kynex/provider.env`):
+### 60 seconds with an OpenAI key
+
+No Azure account needed. Any OpenAI-compatible endpoint works — OpenAI itself,
+or a server you host (vLLM, Ollama, LM Studio):
+
+```bash
+export ADH_MODEL_BACKEND=openai
+export ADH_MODEL_BASE_URL=https://api.openai.com/v1   # or http://localhost:11434/v1, etc.
+export ADH_MODEL_API_KEY=sk-...
+export ADH_MODEL_DEPLOYMENT=gpt-5.4
+
+kynex run invoice.pdf --prompt "Extract the vendor, invoice date and every line item as JSON"
+```
+
+Or configure it interactively (credentials are saved to `~/.kynex/provider.env`):
 
 ```bash
 kynex                  # launch the TUI
-/provider azure        # interactive setup — endpoint, key, deployment
+/provider openai       # interactive setup — base URL, key, model
 ```
 
-Or set environment variables directly (never in the repository):
+### Azure OpenAI (the configuration the published scores used)
 
-Put the credentials in the environment (never in the repository):
+Put the credentials in the environment (never in the repository), or run
+`/provider azure` in the TUI:
 
 ```bash
-export AZURE_OPENAI_ENDPOINT=...        # the gpt-5.4 deployment
+export AZURE_OPENAI_ENDPOINT=...
 export AZURE_OPENAI_API_KEY=...
 export AZURE_OPENAI_CHAT_DEPLOYMENT=...
 export AZURE_OPENAI_API_VERSION=...
 export AZURE_DI_ENDPOINT=...            # optional: table rows + the OCR fallback
 export AZURE_DI_API_KEY=...
-```
-
-Without an Azure resource, the same pipeline runs through any standard Chat
-Completions endpoint:
-
-```bash
-export ADH_MODEL_BACKEND=openai
-export ADH_MODEL_BASE_URL=https://api.openai.com/v1   # or any compatible server
-export ADH_MODEL_API_KEY=sk-...
-export ADH_MODEL_DEPLOYMENT=gpt-5.4
 ```
 
 The published scores were measured on Azure with `gpt-5.4`, `gpt-5.5`, and

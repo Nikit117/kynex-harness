@@ -24,9 +24,9 @@ be checked.
 > filing, enumerates a 26,725-row schedule, and OCRs a 114-page scan.
 >
 > Three entries on ExtractBench, all verified by LlamaIndex:
-> Rank 8 — GPT-6.1 Sol: 94.6 F1
+> Rank 8 — GPT-6.1 Sol: 94.6 F1 (on par with Claude Code #7 and Codex #9)
 > Rank 14 — GPT-5.5: 94.2 F1
-> Rank 17 — GPT-5.4: 92.97 F1
+> GPT-5.4: 92.97 F1 (verified, unranked)
 > (370 documents, 53 systems, unmodified official scorer)
 >
 > Open source: github.com/Nikit117/kynex-harness
@@ -54,8 +54,9 @@ be checked.
 > document's own tables is worth more than any prompt change.
 >
 > Three entries on ExtractBench, all independently verified by LlamaIndex:
-> Rank 8 — GPT-6.1 Sol: 94.6 F1 | Rank 14 — GPT-5.5: 94.2 F1 | Rank 17 —
-> GPT-5.4: 92.97 F1. 370 documents, 53 systems, unmodified official scorer.
+> Rank 8 — GPT-6.1 Sol: 94.6 F1 | Rank 14 — GPT-5.5: 94.2 F1 | GPT-5.4: 92.97 F1
+> (verified, unranked). Rank 8 sits within 0.1 F1 of Claude Code (#7) and
+> Codex (#9). 370 documents, 53 systems, unmodified official scorer.
 > The per-document scores, the predictions and a sha256 manifest are published,
 > so every number can be checked rather than trusted. Verified and merged in
 > PR #84 and PR #119.
@@ -92,7 +93,8 @@ be checked.
 >    rows from the document's own tables is worth more than any prompt change.
 >
 > Three entries on ExtractBench, all verified by LlamaIndex: rank 8 (GPT-6.1
-> Sol, 94.6 F1), rank 14 (GPT-5.5, 94.2), rank 17 (GPT-5.4, 92.97). 370
+> Sol, 94.6 F1, within 0.1 of Claude Code at #7 and Codex at #9), rank 14
+> (GPT-5.5, 94.2), and GPT-5.4 at 92.97 (verified, unranked). 370
 > documents, 53 systems, unmodified official scorer. The per-document scores
 > are in the repo, so the claim can be checked rather than trusted. Verified
 > and merged in PR #84 and PR #119.
@@ -118,8 +120,10 @@ be checked.
 
 > Open-sourced an agentic document-extraction harness. Three entries on
 > ExtractBench (370 documents, 53 systems, official scorer), all verified by
-> LlamaIndex: rank 8 (GPT-6.1 Sol, 94.6 F1), rank 14 (GPT-5.5, 94.2), rank
-> 17 (GPT-5.4, 92.97). The interesting part was finding that 133 of the 370
+> LlamaIndex: rank 8 (GPT-6.1 Sol, 94.6 F1), rank 14 (GPT-5.5, 94.2), and
+> GPT-5.4 at 92.97 (verified, unranked). The transport is plain OpenAI-compatible
+> Chat Completions, so a self-hosted server works too (scores were measured with
+> GPT-class models; small local models will score lower). The interesting part was finding that 133 of the 370
 > documents have the right number of rows and not one row that matches exactly,
 > so the rows get rebuilt from the document's own tables.
 > github.com/Nikit117/kynex-harness

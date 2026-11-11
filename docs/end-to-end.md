@@ -158,7 +158,7 @@ Three verified entries on the ExtractBench leaderboard (370 documents, 53 system
 |---|---:|---:|---:|
 | **KYNEX (GPT-6.1 Sol)** | **8/53** | **94.6** | 9.35¢ |
 | KYNEX (GPT-5.5) | 14/53 | 94.2 | 8.80¢ |
-| KYNEX (GPT-5.4) | 17/53 | 92.97 | 4.96¢ |
+| KYNEX (GPT-5.4) | unranked | 92.97 | 4.96¢ |
 
 Full tables, the cost derivation and the caveats are in
 [benchmarks.md](benchmarks.md).

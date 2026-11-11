@@ -6,6 +6,21 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- `pip install` now pulls every runtime dependency (PDF parsing, LangChain/LangGraph
+  agent runtime); previously the installed `kynex` command failed with
+  `ModuleNotFoundError: langchain_core`
+- the GPT-5.4 leaderboard entry is shown as verified but unranked, matching
+  `include_in_rankings=false` in the ExtractBench CSV
+- the gap to Claude Code (Sonnet 5.5) in `docs/benchmarks.md` is 0.05 F1, not 0.7
+
+### Added
+
+- `[azure]` extra for Azure Document Intelligence
+- PyPI metadata and a release workflow using trusted publishing
+- an OpenAI-first quick start in the README
+
 ## [0.1.0] - 2026-10-20
 
 The first public release: the harness that was measured on ExtractBench.
