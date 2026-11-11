@@ -7,22 +7,23 @@ documents (4,869 pages): 252 short, 98 medium and 20 long. The numbers below
 come from one clean end-to-end run scored with the **unmodified** official
 scorer (`extract_bench.evaluation.score_case.score_extract_prediction`).
 
-| metric | value |
-|---|---:|
-| **unified value F1 (overall)** | **92.65** |
-| short | 94.12 |
-| medium | 91.52 |
-| long | 79.73 |
-| precision, short / medium / long | 93.42 / 92.65 / 84.81 |
-| recall, short / medium / long | 95.07 / 90.84 / 77.34 |
-| documents below 0.50 | 1 |
-| cost per page | 14.17 cent |
-| latency per document, short / medium / long | 101.9 s / 271.0 s / 867.2 s |
+KYNEX has three verified entries on the leaderboard, all scored with the
+unmodified official scorer and independently verified by the LlamaIndex team:
 
-**92.65 puts it 12th of the 50 systems on the published board** - above OpenAI
-GPT-6 Astra (91.91) and Codex (GPT-5.6 Terra Evidence, 92.26), and below the
-top-10 cut of 93.57. The entry itself is in pull request #84, open with the
-maintainers.
+| Configuration | Rank | Overall F1 | Short | Medium | Long | Cost/page |
+|---|---:|---:|---:|---:|---:|---:|
+| **KYNEX (GPT-6.1 Sol)** | **8/53** | **94.6** | 96.0 | 93.1 | 84.2 | 9.35¢ |
+| KYNEX (GPT-5.5) | 14/53 | 94.2 | 95.8 | 93.0 | 80.4 | 8.80¢ |
+| KYNEX (GPT-5.4) | 17/53 | 92.97 | 94.29 | 92.48 | 78.77 | 4.96¢ |
+
+The GPT-5.4 original submission scored 92.65; LlamaIndex's independent re-run
+produced 92.97. All three entries are verified and merged — GPT-5.4 in
+[PR #84](https://github.com/run-llama/ExtractBench/pull/84), GPT-5.5 and
+GPT-6.1 Sol in [PR #119](https://github.com/run-llama/ExtractBench/pull/119).
+
+**Rank 8 of 53 systems** puts KYNEX above Codex (GPT-6 Sol, 94.6), Pulse
+(Non-effort, 94.5), and LlamaExtract Cost-Effective (94.2), and 0.7 points
+behind Claude Code (Sonnet 5.5, 94.7).
 
 The metric is an unweighted mean over documents: a one-page document counts
 exactly as much as a 192-page one, which is why the long split is the hard

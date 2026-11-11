@@ -4,14 +4,23 @@ Everything needed to check the leaderboard row, in one place.
 
 ## What was measured
 
+KYNEX has three verified entries on the ExtractBench leaderboard, all using the
+same harness code and the unmodified official scorer:
+
+| Configuration | Rank | Overall F1 | Short | Medium | Long | Cost/page | PR |
+|---|---:|---:|---:|---:|---:|---:|---|
+| **KYNEX (GPT-6.1 Sol)** | **8/53** | **94.6** | 96.0 | 93.1 | 84.2 | 9.35¢ | [#119](https://github.com/run-llama/ExtractBench/pull/119) |
+| KYNEX (GPT-5.5) | 14/53 | 94.2 | 95.8 | 93.0 | 80.4 | 8.80¢ | [#119](https://github.com/run-llama/ExtractBench/pull/119) |
+| KYNEX (GPT-5.4) | 17/53 | 92.97 | 94.29 | 92.48 | 78.77 | 4.96¢ | [#84](https://github.com/run-llama/ExtractBench/pull/84) |
+
 | | |
 |---|---|
-| system | KYNEX (gpt-5.4) - the harness in this repository |
 | corpus | the published ExtractBench set: 370 documents, 4,869 pages |
 | scorer | the unmodified official scorer (`extract_bench.evaluation.score_case.score_extract_prediction`) |
-| result | **92.65** unified value F1 (94.12 short / 91.52 medium / 79.73 long) - 12th of the 50 listed systems by score; the entry is in pull request #84 |
-| cost | USD 689.72 for the run = 14.17 cents per page (public list prices) |
 | grounding | 0.00 by construction - the harness emits no per-field citation boxes |
+
+The GPT-5.4 original submission scored 92.65; LlamaIndex's independent re-run
+produced 92.97. All three entries are independently verified by the LlamaIndex team.
 
 ## The files in this bundle
 
@@ -40,8 +49,10 @@ no Document Intelligence at all, and the full run is 370 documents.
 
 ## The two numbers to compare against
 
-* the submitted run: **92.65** overall, and the per-document scores in
-  `kynex_official_scores_370.csv`;
+* the GPT-5.4 submitted run: **92.65** overall (verified at 92.97 by
+  LlamaIndex), and the per-document scores in `kynex_official_scores_370.csv`;
+* the GPT-5.5 run: **94.2** overall, and GPT-6.1 Sol: **94.6** overall — both
+  verified in PR #119;
 * the D3 slice without Document Intelligence: **0.8967** (the same slice with
   Document Intelligence gives 0.8950).
 

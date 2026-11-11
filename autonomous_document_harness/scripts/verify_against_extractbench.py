@@ -223,9 +223,10 @@ def main() -> int:
             ),
             flush=True,
         )
-        print("   note: the published 92.65 was measured on Azure with gpt-5.4. A", flush=True)
-        print("         different provider or model gives a different number, so", flush=True)
-        print("         compare the per-document shape, not only the mean.", flush=True)
+        print("   note: the published scores (92.97 GPT-5.4, 94.2 GPT-5.5, 94.6", flush=True)
+        print("         GPT-6.1 Sol) were measured on Azure. A different provider", flush=True)
+        print("         or model gives a different number, so compare the", flush=True)
+        print("         per-document shape, not only the mean.", flush=True)
 
     schema_dir = out_dir / "schemas"
     pred_dir = out_dir / "predictions"

@@ -152,14 +152,13 @@ See [extractbench.md](extractbench.md) for the registration and the full recipe.
 
 ## 8. The number
 
-The measured run over the published 370-document set:
+Three verified entries on the ExtractBench leaderboard (370 documents, 53 systems):
 
-| | value |
-|---|---:|
-| unified value F1 | **92.65** |
-| position among the 50 listed systems, by score | **12th** |
-| documents below 0.50 | 1 |
-| cost per page | 14.17 cent |
+| Configuration | Rank | Overall F1 | Cost/page |
+|---|---:|---:|---:|
+| **KYNEX (GPT-6.1 Sol)** | **8/53** | **94.6** | 9.35¢ |
+| KYNEX (GPT-5.5) | 14/53 | 94.2 | 8.80¢ |
+| KYNEX (GPT-5.4) | 17/53 | 92.97 | 4.96¢ |
 
 Full tables, the cost derivation and the caveats are in
 [benchmarks.md](benchmarks.md).

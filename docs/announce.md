@@ -4,12 +4,11 @@ Everything below is ready to paste. The demo image is
 `docs/images/kynex-demo.svg` (download it from the repo, or use the rendered
 README on GitHub).
 
-**The wording is deliberate.** The score is measured with the unmodified
-official scorer and the per-document results are published, so it can be
-checked. The rank is a computed position among the systems on the published
-board, not an official listing: the entry is in pull request #84, open with the
-maintainers. The cost is the list price of the run, with no free-tier
-assumption. Nothing here needs anyone else's approval to be true.
+**The wording is deliberate.** All three scores were measured with the unmodified
+official scorer and independently verified by the LlamaIndex team. The GPT-5.4
+entry is in PR #84 (verified, merged). The GPT-5.5 and GPT-6.1 Sol entries are
+in PR #119 (verified, merged). The per-document results are published and can
+be checked.
 
 ---
 
@@ -24,10 +23,11 @@ assumption. Nothing here needs anyone else's approval to be true.
 > It is not a one-shot prompt. That is the point - it recovers a 1,223-row
 > filing, enumerates a 26,725-row schedule, and OCRs a 114-page scan.
 >
-> It scores **92.65 unified value F1 on ExtractBench** (370 documents,
-> unmodified official scorer) - **12th of the 50 systems on the board by
-> score**, above OpenAI GPT-6 Astra, at 14.17 cents/page. The leaderboard entry
-> is in pull request #84 with the maintainers.
+> Three entries on ExtractBench, all verified by LlamaIndex:
+> Rank 8 — GPT-6.1 Sol: 94.6 F1
+> Rank 14 — GPT-5.5: 94.2 F1
+> Rank 17 — GPT-5.4: 92.97 F1
+> (370 documents, 53 systems, unmodified official scorer)
 >
 > Open source: github.com/Nikit117/kynex-harness
 >
@@ -53,12 +53,12 @@ assumption. Nothing here needs anyone else's approval to be true.
 > thousands separator or the column alignment. Rebuilding the rows from the
 > document's own tables is worth more than any prompt change.
 >
-> **92.65 unified value F1 on ExtractBench** - 12th of the 50 systems on the
-> board by score, above OpenAI GPT-6 Astra, at 14.17 cents per page. The
-> official scorer, the schemas and the ground truth are untouched; the
-> per-document scores, the predictions and a sha256 manifest are published, so
-> every number can be checked rather than trusted. The leaderboard entry is in
-> pull request #84 with the maintainers.
+> Three entries on ExtractBench, all independently verified by LlamaIndex:
+> Rank 8 — GPT-6.1 Sol: 94.6 F1 | Rank 14 — GPT-5.5: 94.2 F1 | Rank 17 —
+> GPT-5.4: 92.97 F1. 370 documents, 53 systems, unmodified official scorer.
+> The per-document scores, the predictions and a sha256 manifest are published,
+> so every number can be checked rather than trusted. Verified and merged in
+> PR #84 and PR #119.
 >
 > Open source: github.com/Nikit117/kynex-harness
 >
@@ -70,7 +70,7 @@ assumption. Nothing here needs anyone else's approval to be true.
 
 **Title**
 
-> Show HN: KYNEX - an open-source agent that extracts structured data from documents (92.65 F1 on ExtractBench)
+> Show HN: KYNEX - an open-source agent that extracts structured data from documents (94.6 F1, rank 8/53 on ExtractBench)
 
 **First comment**
 
@@ -91,11 +91,11 @@ assumption. Nothing here needs anyone else's approval to be true.
 >    symbol, the thousands separator or the column alignment. Rebuilding the
 >    rows from the document's own tables is worth more than any prompt change.
 >
-> It scores 92.65 unified value F1 on ExtractBench with the unmodified
-> official scorer - 12th of the 50 systems on the board by score - at 14.17
-> cents per page. The per-document scores are in the repo, so the claim can be
-> checked rather than trusted. The leaderboard entry is in pull request #84
-> with the maintainers.
+> Three entries on ExtractBench, all verified by LlamaIndex: rank 8 (GPT-6.1
+> Sol, 94.6 F1), rank 14 (GPT-5.5, 94.2), rank 17 (GPT-5.4, 92.97). 370
+> documents, 53 systems, unmodified official scorer. The per-document scores
+> are in the repo, so the claim can be checked rather than trusted. Verified
+> and merged in PR #84 and PR #119.
 >
 > It also runs without Azure Document Intelligence at all: on the 49-document
 > D3 slice, 0.8950 with the layout model and 0.8967 without it, with no
@@ -116,36 +116,38 @@ assumption. Nothing here needs anyone else's approval to be true.
 
 **r/LocalLLaMA**
 
-> Open-sourced an agentic document-extraction harness. It scores 92.65 unified
-> value F1 on ExtractBench (370 documents, official scorer) - 12th of the 50
-> systems on the board by score. The interesting part was finding that 133 of
-> the 370 documents have the right number of rows and not one row that matches
-> exactly, so the rows get rebuilt from the document's own tables.
+> Open-sourced an agentic document-extraction harness. Three entries on
+> ExtractBench (370 documents, 53 systems, official scorer), all verified by
+> LlamaIndex: rank 8 (GPT-6.1 Sol, 94.6 F1), rank 14 (GPT-5.5, 94.2), rank
+> 17 (GPT-5.4, 92.97). The interesting part was finding that 133 of the 370
+> documents have the right number of rows and not one row that matches exactly,
+> so the rows get rebuilt from the document's own tables.
 > github.com/Nikit117/kynex-harness
 
 **r/AI_Agents**
 
 > KYNEX - a local agent that extracts schema-shaped JSON from documents using
 > tools (page text, tables, layout analysis, rendered pages), with page-wise
-> enumeration for very long record lists. 92.65 F1 on ExtractBench (370
-> documents, official scorer).
+> enumeration for very long record lists. Rank 8/53 on ExtractBench (94.6 F1,
+> 370 documents, verified by LlamaIndex).
 > github.com/Nikit117/kynex-harness
 
 **r/Python**
 
 > Built an open-source PDF/document extraction agent in Python: local, tool
-> using, schema-guided, with a measured pipeline instead of a prompt. 92.65
-> unified value F1 on ExtractBench (370 documents, official scorer), 14.17
-> cents per page. The docs walk through the whole path from install to
-> benchmark. github.com/Nikit117/kynex-harness
+> using, schema-guided, with a measured pipeline instead of a prompt. Rank 8/53
+> on ExtractBench (94.6 F1, 370 documents, verified by LlamaIndex), ~5 cents
+> per page. The docs walk through the whole path from install to benchmark.
+> github.com/Nikit117/kynex-harness
 
 ---
 
 ## 5. The one that matters most: the maintainer
 
-The ExtractBench board is run by the LlamaIndex team. When pull request #84 is
-merged, ask them to mention the entry - a single post from the benchmark's own
-maintainers reaches more people than any of the above.
+The ExtractBench board is run by the LlamaIndex team. All three entries are
+verified and merged — PR #84 (GPT-5.4) and PR #119 (GPT-5.5, GPT-6.1 Sol).
+A mention from the benchmark's own maintainers reaches more people than any of
+the above.
 
 ---
 

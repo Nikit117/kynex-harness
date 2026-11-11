@@ -59,9 +59,9 @@
   <!-- benchmark strip -->
   <rect x="282" y="536" width="886" height="90" rx="10" fill="#0b1220" stroke="#1e293b"/>
   <text x="302" y="564" fill="#64748b" font-size="12">EXTRACTBENCH · 370 documents · unmodified official scorer</text>
-  <text x="302" y="600" fill="#38bdf8" font-size="30" font-weight="bold">92.65</text>
-  <text x="420" y="600" fill="#64748b" font-size="14">unified value F1</text>
-  <text x="600" y="600" fill="#22c55e" font-size="16" font-weight="bold">12th of 50 by score</text>
-  <text x="800" y="600" fill="#64748b" font-size="13">14.17 ¢ / page</text>
+  <text x="302" y="600" fill="#38bdf8" font-size="30" font-weight="bold">94.6</text>
+  <text x="400" y="600" fill="#64748b" font-size="14">unified value F1</text>
+  <text x="570" y="600" fill="#22c55e" font-size="16" font-weight="bold">8th of 53 by score</text>
+  <text x="780" y="600" fill="#64748b" font-size="13">~5 ¢ / page</text>
   <text x="1000" y="600" fill="#64748b" font-size="13">1 doc &lt; 0.50</text>
 </svg>

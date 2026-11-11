@@ -53,9 +53,10 @@ python scripts/verify_against_extractbench.py --provider openai \
     --base-url http://localhost:8000/v1 --model my-model --docs 5
 ```
 
-**This profile is a convenience, not a reproduction.** The published 92.65 was
-measured on Azure with `gpt-5.4`, so a different provider or model gives a
-different number; the profile never changes the default. The key is read from
+**This profile is a convenience, not a reproduction.** The published scores
+(92.97 with GPT-5.4, 94.2 with GPT-5.5, 94.6 with GPT-6.1 Sol) were all
+measured on Azure, so a different provider or model gives a different number;
+the profile never changes the default. The key is read from
 the environment only and is never accepted as a command-line argument, because
 those land in the shell history.
 
