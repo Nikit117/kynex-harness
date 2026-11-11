@@ -38,7 +38,7 @@
     <text x="20" y="37" fill="#22c55e" font-family="system-ui, sans-serif" font-size="22">Verified by LlamaIndex</text>
   </g>
   <!-- Bottom info -->
-  <text x="340" y="460" fill="#64748b" font-family="system-ui, sans-serif" font-size="20">ExtractBench Leaderboard  |  Open Source  |  Apache-2.0  |  $0.05/page</text>
+  <text x="340" y="460" fill="#64748b" font-family="system-ui, sans-serif" font-size="20">ExtractBench Leaderboard  |  Open Source  |  Apache-2.0  |  from $0.05/page</text>
   <!-- GitHub -->
   <text x="340" y="510" fill="#475569" font-family="monospace" font-size="18">github.com/Nikit117/kynex-harness</text>
 </svg>
